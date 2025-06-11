@@ -11,6 +11,11 @@ load_dotenv()
 import streamlit as st
 st.set_page_config(page_title="MyMatch", page_icon="💡", layout="centered")
 
+from sqlalchemy import create_engine
+
+DB_URI = st.secrets["DB_URI"]
+engine = create_engine(DB_URI)
+
 import pandas as pd
 from datetime import date
 
