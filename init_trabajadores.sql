@@ -1,0 +1,22 @@
+-- init_trabajadores.sql: inserta 20 filas
+INSERT INTO trabajadores (nombre, rol, habilidades, semanas_disponible) VALUES
+('Camila Torres',     'Developer',    'Python, Django, REST APIs',             2),
+('Matías González',   'Analista',     'SQL, Power BI, Modelado de datos',      4),
+('Florencia Rojas',   'Diseñadora',   'Figma, Illustrator, UX/UI',             1),
+('Diego Martínez',    'Project Lead', 'Scrum, Kanban, Gestión de equipos',     0),
+('Isidora Vega',      'QA Tester',    'Selenium, Cucumber, Postman',           3),
+('Sebastián Díaz',    'DevOps',       'Docker, Kubernetes, AWS',               5),
+('Antonia Fuentes',   'Data Scientist','Python, sklearn, TensorFlow',           2),
+('Javier Soto',       'Developer',    'JavaScript, React, Node.js',            1),
+('Valentina Mora',    'UX Research',  'Entrevistas, Wireframing, Test de usabilidad', 6),
+('Francisco Silva',   'Analista',     'R, Tableau, Estadística',               2),
+('Ignacia Pérez',     'Developer',    'Go, gRPC, Microservicios',              4),
+('Cristóbal Ramírez', 'Project Lead', 'PMP, Comunicación, Planificación',      1),
+('Catalina Moreno',   'Diseñadora',   'Photoshop, InDesign, Branding',         3),
+('Lucas Bravo',       'DevOps',       'Terraform, Azure, CI/CD',               0),
+('María Castro',      'QA Tester',    'JIRA, TestRail, Automatización',        2),
+('José Herrera',      'Data Scientist','SQL, PyTorch, Big Data',               5),
+('Paulina Flores',    'UX Research',  'Card Sorting, Personas, Prototipos',    4),
+('Andrés León',       'Developer',    'Ruby on Rails, PostgreSQL',             2),
+('Sofía Andrade',     'Analista',     'Excel Avanzado, VBA, Reporting',        1),
+('Rodrigo Silva',     'Project Lead', 'Lean, Six Sigma, Gestión de riesgos',   3);
