@@ -37,7 +37,7 @@ def recalc_disponibilidad(df):
     df2 = df.copy()
     # Renombrar o crear fecha_fin_actual desde fin_proyecto
     if "fin_proyecto" in df2.columns:
-        df2["fecha_fin_actual"] = pd.to_datetime(df2["fin_proyecto"], errors="coerce")
+        df2["fecha_fin_actual"] = pd.to_datetime(df2.get("fin_proyecto", pd.NaT), errors="coerce")
     else:
         df2["fecha_fin_actual"] = pd.NaT
     # Llamar a la lógica original
