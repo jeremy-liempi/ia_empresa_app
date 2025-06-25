@@ -1,212 +1,170 @@
 # main.py
 
-#######################
-# 1. Importar librerías
-#######################
-
 import os
 from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
-st.set_page_config(page_title="MyMatch", page_icon="💡", layout="centered")
-
-from sqlalchemy import create_engine
-
-DB_URI = st.secrets["DB_URI"]
-engine = create_engine(DB_URI)
-
+from PIL import Image
 import pandas as pd
 from datetime import date
+import matplotlib.pyplot as plt
 
-# 1.1. Funciones propias
-from db.db_connector import get_engine, get_session
-from logic.ai_utils import sugerir_metodologia_y_equipo, sugerir_roles_faltantes_por_proyecto
-from logic.availability import calcular_semanas_disponibilidad, filtrar_por_semanas
-
-# 1.2. Modelos (solo si usas ORM para la sección de asignación)
-from models.proyecto import Proyecto
-
-# 1.3 Logo
-from PIL import Image
-image = Image.open("assets/logo.png")
-st.image(image, width=200)  # Ajusta el tamaño a gusto
-
-# 1.4 Base de datos
-from logic.data_utils import cargar_trabajadores
-
-# 1.5 apikey 
-from dotenv import load_dotenv
-import os
+# Cargar variables de entorno
 load_dotenv()
 
-api_key = os.getenv("OPENAI_API_KEY")
+# Configuración de la página
+st.set_page_config(page_title="MyMatch", page_icon="assets/logo.png", layout="wide")
 
+# Sidebar: logo y navegación
+st.sidebar.image("assets/logo.png", width=150)
+st.sidebar.title("MyMatch")
+menu = st.sidebar.radio("Navegación", [
+    "Dashboard",
+    "Gestión Empleados",
+    "Nuevo Proyecto",
+    "Análisis IA"
+])
 
-# Carga la base de datos de trabajadores
-empleados = cargar_trabajadores()
+# Importar utilidades
+from logic.supabase_utils import obtener_trabajadores, subir_trabajador, eliminar_trabajador
+from logic.ai_utils import sugerir_metodologia_y_equipo
+from logic.availability import calcular_semanas_disponibilidad, filtrar_por_semanas
 
+# Cargar datos de empleados
+empleados_df = obtener_trabajadores()
 
-###########################
-# 2. Configurar la página
-###########################
+def recalc_disponibilidad(df):
+    df2 = calcular_semanas_disponibilidad(df, date.today())
+    df["semanas_disponible"] = df2["semanas_disponible"]
+    return df
 
+# === Dashboard ===
+if menu == "Dashboard":
+    st.header("📊 Panel de Control")
+    df = empleados_df.copy()
+    df = recalc_disponibilidad(df)
 
+    # 1) Gráfico: horas totales por rol
+    horas_rol = df.groupby("rol")["horas_por_semana"].sum()
+    fig1, ax1 = plt.subplots()
+    ax1.bar(horas_rol.index, horas_rol.values)
+    ax1.set_xlabel("Rol")
+    ax1.set_ylabel("Horas/Semana Totales")
+    st.pyplot(fig1)
 
-st.title("MyMatch – Arma tu mejor proyecto")
-st.markdown("""
-Esta aplicación permite:
-1. Ver la lista de trabajadores con su información actual.
-2. Sugerir plan de ejecución y equipo ideal para un nuevo proyecto con IA.
-3. Calcular la disponibilidad de los trabajadores en semanas.
-4. Guardar proyecto sugerido por IA.
-""")
+    # 2) Horas por proyecto
+    if "proyecto_actual" in df.columns:
+        horas_proy = df.groupby("proyecto_actual")["horas_por_semana"].sum()
+        fig2, ax2 = plt.subplots()
+        ax2.barh(horas_proy.index, horas_proy.values)
+        ax2.set_xlabel("Horas/Semana")
+        ax2.set_ylabel("Proyecto")
+        st.subheader("Horas asignadas por proyecto")
+        st.pyplot(fig2)
 
+    # 3) Roles con pocos profesionales
+    conteo = df["rol"].value_counts()
+    faltan = conteo[conteo < 2]
+    st.subheader("Roles con pocos profesionales (menos de 2)")
+    st.write(faltan)
 
-#############################################
-# 3. SECCIÓN 1: Mostrar lista de usuarios
-#############################################
+    # 4) Tabla resumen
+    st.subheader("Resumen de Empleados")
+    cols = [col for col in ["id","nombre","rol","anios_experiencia","horas_por_semana","proyecto_actual","semanas_disponible"] if col in df.columns]
+    st.dataframe(df[cols], use_container_width=True)
 
-st.subheader("1. Trabajadores de la Empresa")
+# === Gestión de Empleados ===
+elif menu == "Gestión Empleados":
+    st.header("👥 Gestión de Empleados")
+    st.dataframe(empleados_df, use_container_width=True)
 
+    with st.expander("➕ Agregar Nuevo Empleado"):
+        with st.form("form_agregar"):
+            nombre = st.text_input("Nombre completo")
+            correo = st.text_input("Correo institucional")
+            rol = st.text_input("Rol/Profesión")
+            anios = st.number_input("Años de experiencia", min_value=0, max_value=50)
+            horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
+            cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+            if st.form_submit_button("Subir Empleado"):
+                datos = {
+                    "nombre": nombre,
+                    "correo": correo,
+                    "rol": rol,
+                    "anios_experiencia": anios,
+                    "horas_por_semana": horas,
+                    "proyecto_actual": None,
+                    "fecha_fin_proyecto": None,
+                    "semanas_disponible": None
+                }
+                if cv:
+                    subir_trabajador(datos, cv.read(), cv.name)
+                st.success("Empleado agregado correctamente.")
+    with st.expander("🗑️ Eliminar Empleado"):
+        id_elim = st.number_input("ID del empleado a eliminar", min_value=1)
+        if st.button("Eliminar Empleado"):
+            eliminar_trabajador(id_elim)
+            st.success(f"Empleado con ID={id_elim} eliminado.")
 
-df_trab = cargar_trabajadores()
+# === Nuevo Proyecto ===
+elif menu == "Nuevo Proyecto":
+    st.header("🆕 Nuevo Proyecto")
+    objetivo = st.text_input("Objetivo principal del proyecto")
+    duracion = st.text_input("Duración estimada (ej. 6 semanas)")
+    actividades = st.text_area("Actividades a realizar (ej. desarrollo web, testing)")
+    ubicacion = st.text_input("Ubicación del proyecto")
+    presupuesto = st.number_input("Presupuesto disponible (CLP)", min_value=0)
+    fecha_inicio = st.date_input("Fecha de inicio proyectada")
 
-with st.expander("Ver tabla de trabajadores"):
-    st.dataframe(
-        df_trab,
-        use_container_width=True,
-        height=300  # altura fija para scroll interno
-    )
-
-
-################################################
-# 4. SECCIÓN 2: Clasificar proyectos con IA
-################################################
-
-st.subheader("2. Describe Tu Proyecto y Sugerir Keywords")
-
-# 4.1. Caja de texto para la descripción del proyecto
-st.subheader("Completa los siguientes campos para que la IA te sugiera cómo llevar a cabo tu proyecto:")
-st.info("Puedes dejar los campos vacíos si aún no tienes toda la información.")
-
-objetivo = st.text_input("¿Cuál es el objetivo principal del proyecto?")
-duracion_estim = st.text_input("¿Cuánto tiempo estimas que durará?")
-tipo_actividades = st.text_area("¿Qué tipo de actividades se deben realizar? (Ej: desarrollo de software, diseño gráfico, investigación, etc.)")
-recursos_disponibles = st.text_area("¿Qué recursos tienes actualmente? (personas, materiales, software, etc.)")
-restricciones = st.text_area("¿Existen restricciones o condiciones especiales? (Ej: plazos fijos, trabajo remoto, etc.)")
-ubicacion_proyecto = st.text_input("Ubicación del proyecto")
-inversion_proyecto = st.text_input("Presupuesto disponible (en CLP)")
-
-# Recolectar todo como una sola descripción estructurada
-descripcion_proyecto = f"""
-Objetivo: {objetivo}
-Duración estimada: {duracion_estim}
-Actividades previstas: {tipo_actividades}
-Recursos disponibles: {recursos_disponibles}
-Restricciones: {restricciones}
-Ubicación: {ubicacion_proyecto}
-Presupuesto: {inversion_proyecto} CLP
-"""
-
-
-# 4.2. Botón para enviar a la IA
-if st.button("Sugerir plan de ejecución y equipo ideal"):
-    # 4.2.1 Validar que no esté vacío
-    if descripcion_proyecto.strip() == "":
-        st.warning("Por favor, ingresa primero la descripción del proyecto.")
-    else:
-        # 4.2.2 Llamar a la función de IA y mostrar un spinner
-        with st.spinner("Consultando a OpenAI..."):
-           resultado_ia = sugerir_metodologia_y_equipo(descripcion_proyecto, ubicacion_proyecto, inversion_proyecto, empleados)
-        st.success("✅ Resultado de la IA:")
-        st.code(resultado_ia, language="text")
-
-
-###############################################################
-# 5. SECCIÓN 3: Calcular disponibilidad y filtrar usuarios
-###############################################################
-
-st.subheader("3. Filtrar Trabajadores por Disponibilidad")
-
-# 5.1. Fecha actual (automática)
-hoy = date.today()  # Asegúrate de que tu Mac esté en zona 'America/Santiago'
-
-# 5.2. Agregar columnas al DataFrame con la función de lógica
-
-df_con_semanas = calcular_semanas_disponibilidad(df_trab, hoy)
-
-# 5.3. Mostrar la tabla con la columna 'semanas_disponible'
-st.write("Trabajadores con semanas de disponibilidad calculadas:")
-st.dataframe(
-    df_con_semanas,
-    use_container_width=True
-)
-
-# 5.4. Slider para elegir rango de semanas
-semanas_para_empezar = st.slider(
-    "¿En cuántas semanas planeas iniciar el proyecto?",
-    min_value=0, max_value=12, value=1, step=1
-)
-
-# 5.5. Filtrar DataFrame según el slider
-df_usuarios_disponibles = filtrar_por_semanas(df_con_semanas, semanas_para_empezar)
-
-st.write(f"Trabajadores disponibles en ≤ {semanas_para_empezar} semana(s):")
-st.dataframe(
-    df_usuarios_disponibles[["id", "nombre", "rol", "semanas_disponible"]],
-    use_container_width=True
-)
-
-# 5.6. Sugerencia de la IA basada en el tipo de proyecto (si hay descripción)
-if descripcion_proyecto.strip():
-    with st.spinner("Consultando a la IA para reforzar el equipo..."):
-        from logic.ai_utils import sugerir_roles_faltantes_por_proyecto
-        sugerencia_roles = sugerir_roles_faltantes_por_proyecto(
-            descripcion_proyecto=descripcion_proyecto,
-            empleados=df_usuarios_disponibles
+    if st.button("Generar plan y equipo ideal"):
+        descripcion = (
+            f"Objetivo: {objetivo}\n"
+            f"Duración: {duracion}\n"
+            f"Actividades: {actividades}\n"
+            f"Ubicación: {ubicacion}\n"
+            f"Presupuesto: {presupuesto} CLP\n"
         )
-    st.info("📋 Sugerencia de refuerzos para el equipo:")
-    st.markdown(sugerencia_roles)
+        with st.spinner("Generando sugerencias con IA..."):
+            sugerencia = sugerir_metodologia_y_equipo(
+                descripcion, ubicacion, presupuesto,
+                empleados_df.to_dict(orient="records")
+            )
+        st.subheader("Plan y equipo sugerido por IA")
+        st.markdown(sugerencia)
+
+# === Análisis IA y Filtros ===
 else:
-    st.info("ℹ️ Ingresa una descripción del proyecto arriba para recibir sugerencias de refuerzos.")
+    st.header("🤖 Insights y Filtros Avanzados")
+    df = empleados_df.copy()
+    df = recalc_disponibilidad(df)
 
+    st.subheader("Filtros")
+    roles = st.multiselect("Filtrar por rol", df["rol"].unique())
+    anios_min = st.slider("Mínimo años de experiencia", 0, 50, 2)
+    dispo_max = st.slider("Máx. semanas disponibles", 0, 12, 4)
 
-#######################################################################
-# 6. SECCIÓN 4: Obtener equipo recomendado con IA para el proyecto
-#######################################################################
+    df_filt = df[
+        (df["rol"].isin(roles) if roles else True) &
+        (df["anios_experiencia"] >= anios_min) &
+        (df["semanas_disponible"] <= dispo_max)
+    ]
+    st.dataframe(df_filt, use_container_width=True)
 
-st.subheader("4. Guardar Proyecto sugerido por IA")
+    st.subheader("Horas totales por rol (filtrado)")
+    horas_fil = df_filt.groupby("rol")["horas_por_semana"].sum()
+    fig3, ax3 = plt.subplots()
+    ax3.bar(horas_fil.index, horas_fil.values)
+    st.pyplot(fig3)
 
-# — Formulario para crear proyecto —
-with st.form("form_nuevo_proyecto", clear_on_submit=True):
-    nombre_proyecto = st.text_input("Nombre del proyecto", key="nombre_proy")
-    fecha_inicio_proyecto = st.date_input("Fecha de inicio", key="fecha_inicio_proy")
-    descripcion_proyecto = st.text_area("Descripción breve (opcional)", height=100)
-    # Botón para enviar el formulario
-    guardar = st.form_submit_button("Guardar proyecto")
+    # Profesionales faltantes para proyecto específico
+    st.subheader("Profesionales faltantes para proyecto")
+    proy = st.text_input("Proyecto de interés para análisis de roles")
+    if proy:
+        # roles en proyecto
+        df_proy = df[df["proyecto_actual"] == proy]
+        conteo_proy = df_proy["rol"].value_counts()
+        faltan_proy = conteo_proy[conteo_proy < 2]
+        st.write(faltan_proy if not faltan_proy.empty else "No faltan profesionales para este proyecto.")
 
-if guardar:
-    if not nombre_proyecto or not fecha_inicio_proyecto:
-        st.warning("Debe completar nombre y fecha de inicio.")
-    else:
-        # 1) Guardar en la base de datos
-        session = get_session()
-        nuevo = Proyecto(
-            nombre=nombre_proyecto,
-            fecha_inicio=fecha_inicio_proyecto,
-            descripcion=descripcion_proyecto,
-            metodologia_ia=""  # o lo que quieras guardar
-        )
-        session.add(nuevo)
-        session.commit()
-        st.success(f"Proyecto «{nombre_proyecto}» guardado correctamente.")
-
-        # 2) (Opcional) Mostrar la lista actualizada de proyectos
-        proyectos = session.query(Proyecto).all()
-        df_proy = pd.DataFrame([
-            {"id": p.id, "nombre": p.nombre, "fecha_inicio": p.fecha_inicio}
-            for p in proyectos
-        ])
-        st.write("### Proyectos en la base de datos")
-        st.dataframe(df_proy, use_container_width=True)
+    # Histograma de disponibilidad
+    st.subheader("Distribución de disponibilidad (semanas)")
+    st.bar_chart(df["semanas_disponible"])
