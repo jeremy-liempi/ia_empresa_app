@@ -32,8 +32,16 @@ from logic.availability import calcular_semanas_disponibilidad, filtrar_por_sema
 # Cargar datos de empleados
 empleados_df = obtener_trabajadores()
 
+# Función para recalcular disponibilidad adaptada a columna fin_proyecto
 def recalc_disponibilidad(df):
-    df2 = calcular_semanas_disponibilidad(df, date.today())
+    df2 = df.copy()
+    # Renombrar o crear fecha_fin_actual desde fin_proyecto
+    if "fin_proyecto" in df2.columns:
+        df2["fecha_fin_actual"] = pd.to_datetime(df2["fin_proyecto"], errors="coerce")
+    else:
+        df2["fecha_fin_actual"] = pd.NaT
+    # Llamar a la lógica original
+    df2 = calcular_semanas_disponibilidad(df2, date.today())
     df["semanas_disponible"] = df2["semanas_disponible"]
     return df
 
@@ -69,7 +77,7 @@ if menu == "Dashboard":
 
     # 4) Tabla resumen
     st.subheader("Resumen de Empleados")
-    cols = [col for col in ["id","nombre","rol","anios_experiencia","horas_por_semana","proyecto_actual","semanas_disponible"] if col in df.columns]
+    cols = [col for col in ["id","nombre","rol","años_experiencia","horas_por_semana","proyecto_actual","semanas_disponible"] if col in df.columns]
     st.dataframe(df[cols], use_container_width=True)
 
 # === Gestión de Empleados ===
@@ -79,34 +87,34 @@ elif menu == "Gestión Empleados":
 
     with st.expander("➕ Agregar Nuevo Empleado"):
         with st.form("form_agregar"):
-    nombre = st.text_input("Nombre completo")
-    rut = st.text_input("RUT")
-    correo = st.text_input("Correo institucional")
-    cargo = st.text_input("Cargo")
-    area = st.text_input("Área funcional")
-    años = st.number_input("Años de experiencia", min_value=0, max_value=50)
-    horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
-    skills = st.text_input("Skills (separadas por comas)")
-    estado = st.selectbox("Estado", ["Activo","En proyecto","Disponible","Licencia"])
-    cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
-    if st.form_submit_button("Subir Empleado"):
-        datos = {
-            "nombre": nombre,
-            "rut": rut,
-            "correo": correo,
-            "cargo": cargo,
-            "area": area,
-            "años_experiencia": años,
-            "horas_por_semana": horas,
-            "skills": [s.strip() for s in skills.split(",") if s.strip()],
-            "estado": estado,
-            "proyecto_actual": None,
-            "inicio_proyecto": None,
-            "fin_proyecto": None,
-        }
-        if cv:
-            subir_trabajador(datos, cv.read(), cv.name)
-        st.success("Empleado agregado correctamente.")
+            nombre = st.text_input("Nombre completo")
+            rut = st.text_input("RUT")
+            correo = st.text_input("Correo institucional")
+            cargo = st.text_input("Cargo")
+            area = st.text_input("Área funcional")
+            años = st.number_input("Años de experiencia", min_value=0, max_value=50)
+            horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
+            skills = st.text_input("Skills (separadas por comas)")
+            estado = st.selectbox("Estado", ["Activo","En proyecto","Disponible","Licencia"])
+            cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+            if st.form_submit_button("Subir Empleado"):
+                datos = {
+                    "nombre": nombre,
+                    "rut": rut,
+                    "correo": correo,
+                    "cargo": cargo,
+                    "area": area,
+                    "años_experiencia": años,
+                    "horas_por_semana": horas,
+                    "skills": [s.strip() for s in skills.split(",") if s.strip()],
+                    "estado": estado,
+                    "proyecto_actual": None,
+                    "inicio_proyecto": None,
+                    "fin_proyecto": None,
+                }
+                if cv:
+                    subir_trabajador(datos, cv.read(), cv.name)
+                st.success("Empleado agregado correctamente.")
     with st.expander("🗑️ Eliminar Empleado"):
         id_elim = st.number_input("ID del empleado a eliminar", min_value=1)
         if st.button("Eliminar Empleado"):
@@ -147,31 +155,32 @@ else:
 
     st.subheader("Filtros")
     roles = st.multiselect("Filtrar por rol", df["cargo"].unique())
-    anios_min = st.slider("Años de experiencia ≥", 0, 50, 2)
+    años_min = st.slider("Mínimo años de experiencia", 0, 50, 2)
+    dispo_max = st.slider("Máx. semanas disponibles", 0, 12, 4)
     estado_sel = st.selectbox("Estado", ["Todos"] + df["estado"].unique().tolist())
+
     df_filt = df[
         (df["cargo"].isin(roles) if roles else True) &
-        (df["anios_experiencia"] >= anios_min) &
-        (df["estado"] == estado_sel if estado_sel!="Todos" else True)
+        (df["años_experiencia"] >= años_min) &
+        (df["semanas_disponible"] <= dispo_max) &
+        (df["estado"] == estado_sel if estado_sel != "Todos" else True)
     ]
-    st.dataframe(df_filt)
+
+    st.dataframe(df_filt, use_container_width=True)
 
     st.subheader("Horas totales por rol (filtrado)")
-    horas_fil = df_filt.groupby("rol")["horas_por_semana"].sum()
+    horas_fil = df_filt.groupby("cargo")["horas_por_semana"].sum()
     fig3, ax3 = plt.subplots()
     ax3.bar(horas_fil.index, horas_fil.values)
     st.pyplot(fig3)
 
-    # Profesionales faltantes para proyecto específico
     st.subheader("Profesionales faltantes para proyecto")
     proy = st.text_input("Proyecto de interés para análisis de roles")
     if proy:
-        # roles en proyecto
         df_proy = df[df["proyecto_actual"] == proy]
-        conteo_proy = df_proy["rol"].value_counts()
+        conteo_proy = df_proy["cargo"].value_counts()
         faltan_proy = conteo_proy[conteo_proy < 2]
         st.write(faltan_proy if not faltan_proy.empty else "No faltan profesionales para este proyecto.")
 
-    # Histograma de disponibilidad
     st.subheader("Distribución de disponibilidad (semanas)")
     st.bar_chart(df["semanas_disponible"])
