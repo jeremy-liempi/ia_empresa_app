@@ -24,11 +24,11 @@ menu = st.sidebar.radio("Navegación", [
     "Análisis IA"
 ])
 
-# Importar utilidades
+# Importar utilidades necesarias
 from logic.supabase_utils import obtener_trabajadores, subir_trabajador, eliminar_trabajador
 from logic.ai_utils import sugerir_metodologia_y_equipo
 
-# Cargar datos de empleados
+# Cargar datos de empleados (DataFrame)
 empleados_df = obtener_trabajadores()
 
 # === Dashboard ===
@@ -36,34 +36,35 @@ if menu == "Dashboard":
     st.header("📊 Panel de Control")
 
     if empleados_df.empty:
-        st.info("No hay empleados registrados.")
+        st.info("Aún no hay empleados registrados.")
     else:
-        # 1) Tabla resumen
-        st.subheader("Resumen de Empleados")
+        # 1) Mostrar toda la tabla
+        st.subheader("1. Lista de Empleados")
         st.dataframe(empleados_df, use_container_width=True)
 
-        # 2) Gráfico: horas totales por cargo
-        if "cargo" in empleados_df.columns and "horas_por_semana" in empleados_df.columns:
+        # 2) Horas totales por cargo
+        if {"cargo", "horas_por_semana"}.issubset(empleados_df.columns):
+            st.subheader("2. Horas totales por Cargo")
             horas_cargo = empleados_df.groupby("cargo")["horas_por_semana"].sum()
             fig1, ax1 = plt.subplots()
             ax1.bar(horas_cargo.index, horas_cargo.values)
             ax1.set_xlabel("Cargo")
-            ax1.set_ylabel("Horas/Semana Totales")
+            ax1.set_ylabel("Horas/Semana")
             st.pyplot(fig1)
         else:
-            st.warning("No hay datos suficientes para mostrar horas por cargo.")
+            st.warning("Faltan columnas ‘cargo’ o ‘horas_por_semana’ para el gráfico.")
 
-        # 3) Gráfico: horas por proyecto
-        if "proyecto_actual" in empleados_df.columns and "horas_por_semana" in empleados_df.columns:
+        # 3) Horas por proyecto
+        if {"proyecto_actual", "horas_por_semana"}.issubset(empleados_df.columns):
+            st.subheader("3. Horas por Proyecto")
             horas_proy = empleados_df.groupby("proyecto_actual")["horas_por_semana"].sum()
             fig2, ax2 = plt.subplots()
             ax2.barh(horas_proy.index, horas_proy.values)
             ax2.set_xlabel("Horas/Semana")
             ax2.set_ylabel("Proyecto")
-            st.subheader("Horas asignadas por proyecto")
             st.pyplot(fig2)
         else:
-            st.info("No hay información de proyectos para graficar.")
+            st.info("No hay datos de ‘proyecto_actual’ para graficar.")
 
 # === Gestión de Empleados ===
 elif menu == "Gestión Empleados":
@@ -136,4 +137,4 @@ elif menu == "Nuevo Proyecto":
 # === Análisis IA y Filtros ===
 else:
     st.header("🤖 Insights y Filtros Avanzados")
-    st.write("Esta sección la puedes volver a habilitar cuando tengas lista tu lógica de filtrado avanzado.")
+    st.info("Sección en construcción. Agrega aquí tu lógica de filtrado cuando estés listo.")
