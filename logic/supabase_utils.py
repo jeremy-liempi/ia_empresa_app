@@ -34,10 +34,12 @@ def obtener_trabajadores() -> pd.DataFrame:
 def subir_trabajador(datos: dict, cv_bytes: bytes, filename: str) -> None:
     # Subir CV
     supabase.storage.from_("cvs").upload(f"cvs/{filename}", cv_bytes)
-    datos["cv_url"] = f"{SUPABASE_URL}/storage/v1/object/public/cvs/{filename}"
-    # Convertir lista de skills a array de texto
+    datos["cv_url"] = f"https://shqaysajpwnrvouumngd.supabase.co/storage/v1/object/public/cvs/{filename}"
+
+    # Convertir lista de skills a texto plano
     if "skills" in datos and isinstance(datos["skills"], list):
         datos["skills"] = "{%s}" % ",".join(datos["skills"])
+
     supabase.table("trabajadores").insert(datos).execute()
 
 def eliminar_trabajador(id: int) -> None:
