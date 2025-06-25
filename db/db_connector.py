@@ -2,9 +2,9 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-import os
+import streamlit as st
 
-DB_URI = os.getenv("DB_URI")
+DB_URI = st.secrets("DB_URI")
 engine = create_engine(DB_URI, echo=True, future=True)
 
 Session = sessionmaker(bind=engine)
