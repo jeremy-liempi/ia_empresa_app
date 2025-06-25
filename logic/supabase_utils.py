@@ -66,3 +66,7 @@ def eliminar_trabajador(id_empleado: int):
     except Exception as e:
         st.error(f"Error al eliminar trabajador: {e}")
 
+import streamlit as st
+
+st.write("URL:", st.secrets["SUPABASE_URL"])
+st.write("KEY:", st.secrets["SUPABASE_KEY"])
