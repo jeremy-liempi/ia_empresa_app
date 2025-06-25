@@ -5,27 +5,32 @@ from datetime import date
 
 def calcular_semanas_disponibilidad(df: pd.DataFrame, fecha_actual: date) -> pd.DataFrame:
     """
-    Dado un DataFrame con columna 'fin_proyecto' (datetime),
-    agrega:
-      - 'dias_restantes' = días entre fin_proyecto y fecha_actual.
-      - 'semanas_disponible' = (dias_restantes // 7) ≥ 0.
+    Agrega columnas 'dias_restantes' y 'semanas_disponible' al DataFrame.
+    Requiere columna 'fin_proyecto' en formato fecha.
     """
     df_copia = df.copy()
 
-    # Asegurar que 'fin_proyecto' sea datetime
-    if not pd.api.types.is_datetime64_any_dtype(df_copia["fin_proyecto"]):
-        df_copia["fin_proyecto"] = pd.to_datetime(df_copia["fin_proyecto"], errors="coerce")
+    # Asegura que la columna exista
+    if "fin_proyecto" not in df_copia.columns:
+        df_copia["fin_proyecto"] = pd.NaT
 
-    # 1. Calcular días restantes
+    # Asegura que es tipo datetime
+    df_copia["fin_proyecto"] = pd.to_datetime(df_copia["fin_proyecto"], errors="coerce")
+
+    # Cálculo de días restantes
     df_copia["dias_restantes"] = (df_copia["fin_proyecto"] - fecha_actual).dt.days
 
-    # 2. Calcular semanas disponibles (floor division) y forzar ≥ 0
-    df_copia["semanas_disponible"] = df_copia["dias_restantes"].apply(lambda d: max(0, d // 7))
+    # Cálculo de semanas disponibles, asegurando que no haya valores negativos ni NaN
+    df_copia["semanas_disponible"] = df_copia["dias_restantes"].apply(
+        lambda d: max(0, d // 7) if pd.notnull(d) else 0
+    )
 
     return df_copia
 
 def filtrar_por_semanas(df: pd.DataFrame, semanas_max: int) -> pd.DataFrame:
     """
-    Retorna filas donde 'semanas_disponible' ≤ semanas_max.
+    Filtra el DataFrame por semanas de disponibilidad ≤ semanas_max.
     """
+    if "semanas_disponible" not in df.columns:
+        return df  # No filtra si no hay esa columna
     return df[df["semanas_disponible"] <= semanas_max]
