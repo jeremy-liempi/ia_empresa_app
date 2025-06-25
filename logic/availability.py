@@ -5,19 +5,19 @@ from datetime import date
 
 def calcular_semanas_disponibilidad(df: pd.DataFrame, fecha_actual: date) -> pd.DataFrame:
     """
-    Dado un DataFrame con columna 'fecha_fin_actual' (datetime),
+    Dado un DataFrame con columna 'fin_proyecto' (datetime),
     agrega:
-      - 'dias_restantes' = días entre fecha_fin_actual y fecha_actual.
+      - 'dias_restantes' = días entre fin_proyecto y fecha_actual.
       - 'semanas_disponible' = (dias_restantes // 7) ≥ 0.
     """
     df_copia = df.copy()
 
-    # Asegurar que 'fecha_fin_actual' es datetime
+    # Asegurar que 'fin_proyecto' sea datetime
     if not pd.api.types.is_datetime64_any_dtype(df_copia["fin_proyecto"]):
         df_copia["fin_proyecto"] = pd.to_datetime(df_copia["fin_proyecto"], errors="coerce")
 
     # 1. Calcular días restantes
-    dias_restantes = (df_copia["fin_proyecto"] - fecha_base).dt.days
+    df_copia["dias_restantes"] = (df_copia["fin_proyecto"] - fecha_actual).dt.days
 
     # 2. Calcular semanas disponibles (floor division) y forzar ≥ 0
     df_copia["semanas_disponible"] = df_copia["dias_restantes"].apply(lambda d: max(0, d // 7))
