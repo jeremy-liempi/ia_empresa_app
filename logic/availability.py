@@ -6,18 +6,16 @@ from datetime import date
 def calcular_semanas_disponibilidad(df: pd.DataFrame, fecha_actual: date) -> pd.DataFrame:
     df_copia = df.copy()
 
-    # 🔒 Verificación segura
+    # Verificar que exista la columna
     if "fin_proyecto" not in df_copia.columns:
-        df_copia["fin_proyecto"] = pd.NaT  # o puedes poner fecha_actual si lo prefieres
+        df_copia["fin_proyecto"] = pd.NaT
 
-    # Asegurar que sea datetime
     df_copia["fin_proyecto"] = pd.to_datetime(df_copia["fin_proyecto"], errors="coerce")
-
-    # Calcular días restantes
     df_copia["dias_restantes"] = (df_copia["fin_proyecto"] - fecha_actual).dt.days
 
-    # Calcular semanas disponibles (solo si fecha válida)
-    df_copia["semanas_disponible"] = df_copia["dias_restantes"].apply(lambda d: max(0, d // 7) if pd.notnull(d) else 0)
+    df_copia["semanas_disponible"] = df_copia["dias_restantes"].apply(
+        lambda d: max(0, d // 7) if pd.notnull(d) else 0
+    )
 
     return df_copia
 
