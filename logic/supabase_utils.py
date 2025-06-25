@@ -15,9 +15,20 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def obtener_trabajadores() -> pd.DataFrame:
     resp = supabase.table("trabajadores").select("*").execute()
     df = pd.DataFrame(resp.data)
-    # Convertir skills de text[] a lista de Python
+
+    # Si la tabla está vacía, crear columnas manualmente
+    if df.empty:
+        df = pd.DataFrame(columns=[
+            "id", "nombre", "rut", "cargo", "area", "skills",
+            "proyecto_actual", "inicio_proyecto", "fin_proyecto",
+            "correo", "telefono", "comentarios", "disponibilidad",
+            "cv_url", "años_experiencia"
+        ])
+
+    # Asegurar que skills sea una lista vacía si está en blanco
     if "skills" in df.columns:
         df["skills"] = df["skills"].apply(lambda x: x or [])
+
     return df
 
 def subir_trabajador(datos: dict, cv_bytes: bytes, filename: str) -> None:
