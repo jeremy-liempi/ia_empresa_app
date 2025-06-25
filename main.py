@@ -79,26 +79,34 @@ elif menu == "Gestión Empleados":
 
     with st.expander("➕ Agregar Nuevo Empleado"):
         with st.form("form_agregar"):
-            nombre = st.text_input("Nombre completo")
-            correo = st.text_input("Correo institucional")
-            rol = st.text_input("Rol/Profesión")
-            anios = st.number_input("Años de experiencia", min_value=0, max_value=50)
-            horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
-            cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
-            if st.form_submit_button("Subir Empleado"):
-                datos = {
-                    "nombre": nombre,
-                    "correo": correo,
-                    "rol": rol,
-                    "anios_experiencia": anios,
-                    "horas_por_semana": horas,
-                    "proyecto_actual": None,
-                    "fecha_fin_proyecto": None,
-                    "semanas_disponible": None
-                }
-                if cv:
-                    subir_trabajador(datos, cv.read(), cv.name)
-                st.success("Empleado agregado correctamente.")
+    nombre = st.text_input("Nombre completo")
+    rut = st.text_input("RUT")
+    correo = st.text_input("Correo institucional")
+    cargo = st.text_input("Cargo")
+    area = st.text_input("Área funcional")
+    años = st.number_input("Años de experiencia", min_value=0, max_value=50)
+    horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
+    skills = st.text_input("Skills (separadas por comas)")
+    estado = st.selectbox("Estado", ["Activo","En proyecto","Disponible","Licencia"])
+    cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+    if st.form_submit_button("Subir Empleado"):
+        datos = {
+            "nombre": nombre,
+            "rut": rut,
+            "correo": correo,
+            "cargo": cargo,
+            "area": area,
+            "años_experiencia": años,
+            "horas_por_semana": horas,
+            "skills": [s.strip() for s in skills.split(",") if s.strip()],
+            "estado": estado,
+            "proyecto_actual": None,
+            "inicio_proyecto": None,
+            "fin_proyecto": None,
+        }
+        if cv:
+            subir_trabajador(datos, cv.read(), cv.name)
+        st.success("Empleado agregado correctamente.")
     with st.expander("🗑️ Eliminar Empleado"):
         id_elim = st.number_input("ID del empleado a eliminar", min_value=1)
         if st.button("Eliminar Empleado"):
@@ -138,16 +146,15 @@ else:
     df = recalc_disponibilidad(df)
 
     st.subheader("Filtros")
-    roles = st.multiselect("Filtrar por rol", df["rol"].unique())
-    anios_min = st.slider("Mínimo años de experiencia", 0, 50, 2)
-    dispo_max = st.slider("Máx. semanas disponibles", 0, 12, 4)
-
+    roles = st.multiselect("Filtrar por rol", df["cargo"].unique())
+    anios_min = st.slider("Años de experiencia ≥", 0, 50, 2)
+    estado_sel = st.selectbox("Estado", ["Todos"] + df["estado"].unique().tolist())
     df_filt = df[
-        (df["rol"].isin(roles) if roles else True) &
+        (df["cargo"].isin(roles) if roles else True) &
         (df["anios_experiencia"] >= anios_min) &
-        (df["semanas_disponible"] <= dispo_max)
+        (df["estado"] == estado_sel if estado_sel!="Todos" else True)
     ]
-    st.dataframe(df_filt, use_container_width=True)
+    st.dataframe(df_filt)
 
     st.subheader("Horas totales por rol (filtrado)")
     horas_fil = df_filt.groupby("rol")["horas_por_semana"].sum()
