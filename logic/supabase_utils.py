@@ -13,29 +13,22 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY") or st.secrets["SUPABASE_KEY"]
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def obtener_trabajadores() -> pd.DataFrame:
-    """
-    Devuelve un DataFrame con todos los registros de la tabla 'trabajadores'.
-    """
     resp = supabase.table("trabajadores").select("*").execute()
-    return pd.DataFrame(resp.data)
+    df = pd.DataFrame(resp.data)
+    # Convertir skills de text[] a lista de Python
+    if "skills" in df.columns:
+        df["skills"] = df["skills"].apply(lambda x: x or [])
+    return df
 
 def subir_trabajador(datos: dict, cv_bytes: bytes, filename: str) -> None:
-    """
-    Sube un nuevo trabajador:
-    1) Guarda el CV en el bucket 'cvs' de Supabase Storage.
-    2) Inserta el registro en la tabla 'trabajadores', incluyendo la URL pública del CV.
-    """
-    # 1) Subir el PDF al bucket
+    # Subir CV
     supabase.storage.from_("cvs").upload(f"cvs/{filename}", cv_bytes)
-    # Construir URL pública
-    cv_url = f"{SUPABASE_URL}/storage/v1/object/public/cvs/{filename}"
-    # 2) Insertar el registro, añadiendo la URL del CV
-    registro = {**datos, "cv_url": cv_url}
-    supabase.table("trabajadores").insert(registro).execute()
+    datos["cv_url"] = f"{SUPABASE_URL}/storage/v1/object/public/cvs/{filename}"
+    # Convertir lista de skills a array de texto
+    if "skills" in datos and isinstance(datos["skills"], list):
+        datos["skills"] = "{%s}" % ",".join(datos["skills"])
+    supabase.table("trabajadores").insert(datos).execute()
 
 def eliminar_trabajador(id: int) -> None:
-    """
-    Elimina el trabajador cuyo campo 'id' coincida con el proporcionado.
-    """
     supabase.table("trabajadores").delete().eq("id", id).execute()
 
