@@ -271,13 +271,16 @@ elif seccion == "Proyectos":
         proyectos = obtener_proyectos()  # Asegúrate que esta función devuelve lista de dicts con al menos 'id' y 'nombre'
         opciones = {p["nombre"]: p["id"] for p in proyectos}
 
-        else:
-            proyecto_sel = st.selectbox("Selecciona proyecto a editar", list(opciones.keys()))
-            proyecto_id = opciones[proyecto_sel]
-            
-            # Obtener datos actuales del proyecto seleccionado (deberías tener función tipo obtener_proyecto_por_id)
-            proyecto_data = obtener_proyecto_por_id(proyecto_id)
-            
+        proyectos = obtener_proyectos()
+        if not proyectos:
+            st.info("No hay proyectos para editar.")
+            st.stop()
+        
+        proyecto_nombres = {p["nombre"]: p["id"] for p in proyectos}
+        proyecto_nombre = st.selectbox("Selecciona un proyecto", list(proyecto_nombres.keys()))
+        proyecto_id = proyecto_nombres[proyecto_nombre]
+        
+        proyecto_data = obtener_proyecto_por_id(proyecto_id)
             if proyecto_data:
                 with st.form("form_editar_proyecto"):
                     nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
