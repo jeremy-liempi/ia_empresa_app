@@ -297,53 +297,67 @@ elif seccion == "Proyectos":
         proyectos = obtener_proyectos()
         if not proyectos:
             st.info("No hay proyectos para editar.")
-            st.stop()
+        else:
+            opciones = {p["nombre"]: p["id"] for p in proyectos}
+            nombre_sel = st.selectbox("Selecciona proyecto a editar", list(opciones.keys()))
+            proyecto_id = opciones[nombre_sel]
+            proyecto_data = obtener_proyecto_por_id(proyecto_id)
         
-        proyecto_nombres = {p["nombre"]: p["id"] for p in proyectos}
-        proyecto_nombre = st.selectbox("Selecciona un proyecto", list(proyecto_nombres.keys()))
-        proyecto_id = proyecto_nombres[proyecto_nombre]
-        
-        proyecto_data = obtener_proyecto_por_id(proyecto_id)
-        if proyecto_data:
             with st.form("form_editar_proyecto"):
                 nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
-                descripcion = st.text_area("Descripción detallada", value=proyecto_data.get("descripcion", ""))
-                objetivo = st.text_input("Objetivo", value=proyecto_data.get("objetivo", ""))
-                duracion = st.text_input("Duración estimada", value=proyecto_data.get("duracion", ""))
-                ubicacion = st.text_input("Ubicación", value=proyecto_data.get("ubicacion", ""))
-                presupuesto = st.number_input("Presupuesto", min_value=0, value=proyecto_data.get("presupuesto", 0))
-                fecha_inicio = st.date_input("Fecha de inicio", value=proyecto_data.get("fecha_inicio", date.today()))
-                duracion_semanas = st.number_input(
-                    "Duración estimada (en semanas)",
-                    min_value=1,
-                    value=(pd.to_datetime(proyecto_data["fecha_fin"]) - pd.to_datetime(proyecto_data["fecha_inicio"])).days // 7
+                descripcion = st.text_area("Descripción detallada", value=proyecto_data["descripcion"])
+                objetivo = st.text_input("Objetivo", value=proyecto_data["objetivo"])
+                duracion_inicial = (
+                    (pd.to_datetime(proyecto_data["fecha_fin"]) - pd.to_datetime(proyecto_data["fecha_inicio"])).days // 7
                 )
-                
-                fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)    
-                # Para los participantes: si tienes una lista de nombres guardados, usar multiselect con los que ya están
-                participantes_actuales = proyecto_data.get("participantes", [])
-                todos_trabajadores = [e["nombre"] for e in obtener_trabajadores().to_dict(orient="records")]
-                participantes = st.multiselect("Selecciona trabajadores para este proyecto", options=todos_trabajadores, default=participantes_actuales)
-                    
-                submit_edit = st.form_submit_button("Guardar cambios")
-                    
-                if submit_edit:
+                duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, value=duracion_inicial)
+                ubicacion = st.text_input("Ubicación", value=proyecto_data["ubicacion"])
+                presupuesto = st.number_input("Presupuesto", min_value=0, value=int(proyecto_data["presupuesto"]))
+                fecha_inicio = st.date_input("Fecha de inicio", value=pd.to_datetime(proyecto_data["fecha_inicio"]))
+                fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
+        
+                participantes = st.multiselect(
+                    "Selecciona trabajadores asignados",
+                    options=df_empleados["nombre"].tolist(),
+                    default=proyecto_data.get("participantes", [])
+                )
+        
+                submit_editar = st.form_submit_button("Guardar cambios")
+        
+                if submit_editar:
                     datos_actualizados = {
                         "nombre": nombre,
                         "descripcion": descripcion,
                         "objetivo": objetivo,
+                        "duracion": f"{duracion_semanas} semanas",
                         "ubicacion": ubicacion,
                         "presupuesto": presupuesto,
                         "fecha_inicio": fecha_inicio.isoformat(),
                         "fecha_fin": fecha_fin.isoformat(),
-                        "duracion": duracion_semanas,
                         "participantes": participantes,
                     }
-                    # Aquí la función para actualizar proyecto en la base de datos
+        
                     actualizar_proyecto(proyecto_id, datos_actualizados)
-                    st.success(f"Proyecto '{nombre}' actualizado correctamente.")
-        else:
-            st.error("No se pudo cargar la información del proyecto seleccionado.")
+        
+                    # 👉 ACTUALIZAR trabajadores vinculados
+                    for trabajador in df_empleados.itertuples():
+                        if trabajador.nombre in participantes:
+                            actualizar_trabajador(trabajador.id, {
+                                "proyecto_actual": nombre,
+                                "inicio_proyecto": fecha_inicio.isoformat(),
+                                "fin_proyecto": fecha_fin.isoformat(),
+                                "estado": "En proyecto"
+                            })
+                        elif trabajador.proyecto_actual == nombre and trabajador.nombre not in participantes:
+                            actualizar_trabajador(trabajador.id, {
+                                "proyecto_actual": None,
+                                "inicio_proyecto": None,
+                                "fin_proyecto": None,
+                                "estado": "Disponible"
+                            })
+        
+                    st.success("Proyecto y asignaciones de trabajadores actualizados correctamente.")
+
 
 
     # === ELIMINAR PROYECTO ===
