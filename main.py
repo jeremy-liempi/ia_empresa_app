@@ -259,9 +259,9 @@ elif seccion == "Proyectos":
             objetivo = st.text_input("Objetivo")
             ubicacion = st.text_input("Ubicación")
             presupuesto = st.number_input("Presupuesto", 0)
-            fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
             fecha_inicio = st.date_input("Fecha de inicio")
             duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, max_value=104, value=4)
+            fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
             participantes = st.multiselect(
                 "Selecciona trabajadores para este proyecto",
                 options=df_empleados["nombre"].tolist()
