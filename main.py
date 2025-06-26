@@ -182,7 +182,7 @@ elif seccion == "Gestión de empleados":
                 st.success("Empleado agregado correctamente.")
 
 
-    with st.expander("✏️ Editar Empleado"):
+    with st.expander("✏️ Editar informacion de Empleado"):
         # Traer datos y seleccionar registro
         df_editar = obtener_trabajadores()
         id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
@@ -219,7 +219,8 @@ elif seccion == "Gestión de empleados":
             area = st.text_input("Área funcional", value=emp["area"])
             años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
             horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
-        
+            cv_nuevo = st.file_uploader("Actualizar CV (opcional, reemplaza el anterior)", type=["pdf"])
+
             submit_ed = st.form_submit_button("Guardar cambios")
             
             if submit_ed:
@@ -230,13 +231,31 @@ elif seccion == "Gestión de empleados":
                     "area": area,
                     "años_experiencia": años,
                     "horas_por_semana": horas,
-                    "estado": estado,
-                    "proyecto_actual": proyecto_actual if estado=="En proyecto" else None,
+                    "estado": estado_seleccionado,
+                    "proyecto_actual": proyecto_actual if estado_seleccionado == "En proyecto" else None,
                     "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
-                    "fin_proyecto":    fin_proyecto.isoformat()    if fin_proyecto    else None,
+                    "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
                 }
+            
+                # Si subió un nuevo CV, reemplazar el anterior
+                if cv_nuevo:
+                    # Reutilizamos la lógica de subida de nuevo CV
+                    unique_filename = f"{uuid.uuid4()}.pdf"
+                    path_on_bucket = f"cvs/{unique_filename}"
+            
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                        tmp.write(cv_nuevo.read())
+                        tmp_path = tmp.name
+            
+                    supabase.storage.from_("cvs").upload(path_on_bucket, tmp_path)
+                    public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket)
+                    os.remove(tmp_path)
+            
+                    datos_upd["cv_url"] = public_url
+            
                 actualizar_trabajador(id_edit, datos_upd)
                 st.success("Empleado actualizado correctamente.")
+
 
             
         
