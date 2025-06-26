@@ -33,7 +33,10 @@ if not df_empleados.empty:
 
 # === DASHBOARD ===
 if seccion == "Dashboard":
-    st.title("📊 Panel de Control")
+    submenu = st.sidebar.selectbox("📊 Submenú Dashboard", ["Profesionales por rol", "Horas por proyecto", "Disponibilidad en semanas", "Faltantes por rol"])
+    
+    st.title(f"📊 {submenu}")
+
 
     if df_empleados.empty:
         st.warning("No hay empleados cargados aún.")
