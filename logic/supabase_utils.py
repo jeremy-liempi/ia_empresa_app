@@ -36,33 +36,21 @@ def obtener_trabajadores() -> pd.DataFrame:
 def subir_trabajador(datos: dict, cv_file):
     try:
         if cv_file:
-            # 1. Generar nombre único
             unique_filename = f"{uuid.uuid4()}.pdf"
             path_on_bucket = f"cvs/{unique_filename}"
-
-            # 2. Leer archivo PDF como bytes
             file_content = cv_file.read()
 
-            # 3. Subir al bucket "cvs"
             supabase.storage.from_("cvs").upload(path_on_bucket, file_content)
-
-            # 4. Hacer público
             supabase.storage.from_("cvs").update(path_on_bucket, {
-                "cacheControl": "3600",
-                "upsert": True
+                "cacheControl": "3600", "upsert": True
             })
 
-            # 5. Obtener URL pública
             public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket).get("publicURL")
-
-            # 6. Agregar la URL al diccionario de datos
             datos["cv_url"] = public_url
 
-        # 7. Si tiene habilidades, formatearlas como lista de PostgreSQL
         if isinstance(datos.get("skills"), list):
             datos["skills"] = "{" + ",".join(datos["skills"]) + "}"
 
-        # 8. Insertar el trabajador en la tabla
         supabase.table("trabajadores").insert(datos).execute()
 
     except Exception as e:
