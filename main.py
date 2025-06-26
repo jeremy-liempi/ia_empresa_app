@@ -248,16 +248,16 @@ elif seccion == "Gestión de empleados":
 # === PROYECTOS ===
 elif seccion == "Proyectos":
     sub_proy = st.sidebar.radio("Submenú Proyectos", [
-        "Apoyo para Proyectos Entrantes",
-        "Agregar nuevo proyecto",
-        "Editar proyecto",
-        "Eliminar proyecto",
-        "Proyectos actuales asignados"
+        "🤝Apoyo para Proyectos Entrantes",
+        "➕Agregar nuevo proyecto",
+        "✏️Editar proyecto",
+        "🗑️Eliminar proyecto",
+        "📁Proyectos actuales asignados"
     ])
     st.title(sub_proy)
 
     # === SELECCIÓN DE SEMANAS ===
-    if sub_proy == "📁Apoyo para Proyectos Entrantes":
+    if sub_proy == "🤝Apoyo para Proyectos Entrantes":
         semanas_inicio = st.slider("¿En cuántas semanas se planea iniciar el proyecto?", 0, 52, 0)
 
         # === TRABAJADORES DISPONIBLES ===
