@@ -15,7 +15,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Importaciones locales
-from logic.supabase_utils import obtener_trabajadores, subir_trabajador, eliminar_trabajador
+from logic.supabase_utils import (
+    obtener_trabajadores,
+    subir_trabajador,
+    eliminar_trabajador,
+    guardar_proyecto,
+    obtener_proyectos,
+    eliminar_proyecto
+)
 from logic.availability import calcular_semanas_disponibilidad
 from logic.ai_utils import sugerir_metodologia_y_equipo
 
@@ -35,6 +42,12 @@ if not df_empleados.empty:
 if seccion == "Dashboard":
     submenu = st.sidebar.selectbox("📊 Submenú Dashboard", ["Profesionales por rol", "Horas por proyecto", "Disponibilidad en semanas", "Faltantes por rol"])
     
+        submenu = st.sidebar.selectbox("📊 Submenú Dashboard", [
+        "Profesionales por rol",
+        "Horas por proyecto",
+        "Disponibilidad en semanas",
+        "Faltantes por rol"
+    ])
     st.title(f"📊 {submenu}")
 
 
@@ -216,35 +229,63 @@ elif seccion == "Proyectos":
             st.markdown(sugerencia)
 
     # === AGREGAR PROYECTO REAL ===
-    st.subheader("📥 Agregar nuevo proyecto a la base de datos")
-    with st.form("form_agregar_proyecto"):
-        nombre = st.text_input("Nombre del proyecto")
-        descripcion_proy = st.text_area("Descripción detallada")
-        objetivo = st.text_input("Objetivo del proyecto")
-        duracion = st.text_input("Duración estimada (ej. 4 semanas)")
-        ubicacion_proy = st.text_input("Ubicación")
-        presupuesto_proy = st.number_input("Presupuesto", 0)
-        fecha_inicio_proy = st.date_input("Fecha de inicio")
+        sub_proy = st.sidebar.selectbox("📁 Submenú Proyectos", [
+        "Apoyo para Proyectos Entrantes",
+        "Agregar nuevo proyecto",
+        "Editar proyecto",
+        "Eliminar proyecto",
+        "Proyectos actuales asignados"
+    ])
+    st.title(sub_proy)
 
-        participantes = st.multiselect(
-            "Selecciona trabajadores para este proyecto",
-            options=disponibles["nombre"].tolist()
-        )
-
-        if st.form_submit_button("Agregar proyecto"):
-            st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
+    if sub_proy == "Agregar nuevo proyecto":
+        with st.form("form_agregar_proyecto"):
+            nombre = st.text_input("Nombre del proyecto")
+            descripcion = st.text_area("Descripción detallada")
+            objetivo = st.text_input("Objetivo")
+            duracion = st.text_input("Duración estimada (ej. 4 semanas)")
+            ubicacion = st.text_input("Ubicación")
+            presupuesto = st.number_input("Presupuesto", 0)
+            fecha_inicio = st.date_input("Fecha de inicio")
+            participantes = st.multiselect(
+                "Selecciona trabajadores para este proyecto",
+                options=df_empleados["nombre"].tolist()
+            )
+            if st.form_submit_button("Guardar proyecto"):
+                guardar_proyecto(
+                    nombre, descripcion, objetivo, duracion,
+                    ubicacion, presupuesto, fecha_inicio,
+                    participantes
+                )
+                st.success(f"Proyecto '{nombre}' guardado con {len(participantes)} participantes.")
             # Aquí iría la lógica para insertar el proyecto en Supabase (a implementar en supabase_utils.py)
 
     # === EDITAR PROYECTO ===
     st.subheader("✏️ Editar proyecto")
-    st.info("Funcionalidad para editar proyectos, a implementar con integración real a Supabase.")
+    if sub_proy == "Editar proyecto":
+        proyectos = obtener_proyectos()
+        # aquí usar st.selectbox(proyectos) y luego un formulario con guardar_proyecto o update
+
 
     # === ELIMINAR PROYECTO ===
     st.subheader("🗑️ Eliminar proyecto")
-    st.info("Funcionalidad para eliminar proyectos, a implementar con integración real a Supabase.")
+        if sub_proy == "Eliminar proyecto":
+            proyectos = obtener_proyectos()
+            opciones = {p["nombre"]: p["id"] for p in proyectos}
+            sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
+            if st.button("Eliminar proyecto"):
+                eliminar_proyecto(opciones[sel])
+                st.success("Proyecto eliminado.")
+
 
     # === PROYECTOS ACTUALES ===
     st.subheader("📂 Proyectos actuales asignados")
+    if sub_proy == "Proyectos actuales asignados":
+        for p in df_empleados["proyecto_actual"].dropna().unique():
+            st.markdown(f"### {p}")
+            dfp = df_empleados[df_empleados["proyecto_actual"] == p]
+            st.dataframe(dfp[["nombre","cargo","horas_por_semana","semanas_disponible"]])
+            
     proyectos = df_empleados["proyecto_actual"].dropna().unique()
     for p in proyectos:
         st.markdown(f"### {p}")
