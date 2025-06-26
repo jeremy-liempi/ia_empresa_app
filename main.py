@@ -115,7 +115,8 @@ elif seccion == "Gestión de empleados":
         id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
         emp = df_editar[df_editar["id"] == id_edit].iloc[0]
 
-        estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
+        estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_nuevo_empleado")
+
     
         # Si está en proyecto, pedir estos datos también fuera
         proyecto_actual = None
