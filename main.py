@@ -339,8 +339,6 @@ elif seccion == "Proyectos":
             st.write(f"**Fecha de inicio:** {p.get('fecha_inicio', '')}")
             st.write(f"**Participantes:** {', '.join(p.get('participantes', []))}")
 
-from logic.supabase_utils import guardar_proyecto, obtener_trabajadores
-from datetime import date
 
 # Obtener todos los trabajadores
 df = obtener_trabajadores()
