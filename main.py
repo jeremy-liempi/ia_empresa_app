@@ -281,7 +281,7 @@ elif seccion == "Proyectos":
         proyecto_id = proyecto_nombres[proyecto_nombre]
         
         proyecto_data = obtener_proyecto_por_id(proyecto_id)
-         if proyecto_data:
+        if proyecto_data:
             with st.form("form_editar_proyecto"):
                 nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
                 descripcion = st.text_area("Descripción detallada", value=proyecto_data.get("descripcion", ""))
