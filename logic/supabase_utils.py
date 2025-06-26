@@ -74,6 +74,8 @@ def actualizar_trabajador(id_empleado: int, datos: dict):
         supabase.table("trabajadores").update(datos).eq("id", id_empleado).execute()
     except Exception as e:
         st.error(f"Error al actualizar trabajador: {e}")
+
+
 def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
     try:
         supabase.table("proyectos").insert({
@@ -95,13 +97,31 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
     except Exception as e:
         st.error(f"Error al guardar proyecto: {e}")
         return None
+from supabase import create_client
+import os
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 def obtener_proyectos():
-    try:
-        response = supabase.table("proyectos").select("*").execute()
+    response = supabase.table("proyectos").select("*").execute()
+    if response.status_code == 200:
         return response.data
-    except Exception as e:
-        st.error(f"Error al obtener proyectos: {e}")
-        return []
+    return []
+
+def obtener_proyecto_por_id(id_proyecto):
+    response = supabase.table("proyectos").select("*").eq("id", id_proyecto).single().execute()
+    if response.status_code == 200:
+        return response.data
+    return None
+
+
+def actualizar_proyecto(id_proyecto, datos_actualizados):
+    response = supabase.table("proyectos").update(datos_actualizados).eq("id", id_proyecto).execute()
+    return response
+
 
 def eliminar_proyecto(proyecto_id):
     try:
