@@ -126,7 +126,7 @@ elif seccion == "Gestión de empleados":
             proyecto_actual = st.text_input("Proyecto actual")
             inicio_proyecto = st.date_input("Fecha inicio del proyecto")
             fin_proyecto = st.date_input("Fecha fin del proyecto")
-
+            
         with st.form("form_editar"):
             # Pre-llenar campos con los valores actuales
             nombre = st.text_input("Nombre completo", value=emp["nombre"])
@@ -137,6 +137,7 @@ elif seccion == "Gestión de empleados":
             horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
         
             submit_ed = st.form_submit_button("Guardar cambios")
+            
             if submit_ed:
                 datos_upd = {
                     "nombre": nombre,
