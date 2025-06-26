@@ -34,10 +34,6 @@ seccion = st.sidebar.selectbox("Navegación", ["Dashboard", "Gestión de emplead
 # Obtener empleados
 df_empleados = obtener_trabajadores()
 
-if not obtener_proyectos():
-    from logic.bulk_generator import guardar_proyectos_desde_trabajadores
-    guardar_proyectos_desde_trabajadores()
-
 # Calcular disponibilidad
 if not df_empleados.empty:
     df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
@@ -94,12 +90,12 @@ elif seccion == "Gestión de empleados":
 
     if not df_empleados.empty:
         st.dataframe(df_empleados, use_container_width=True)
-    
-    from logic.bulk_generator import generar_empleados_aleatorios
+    from logic.bulk_generator import guardar_proyectos_desde_trabajadores
 
-    if st.button("Generar 20 empleados distintos"):
-        generar_empleados_aleatorios(20, desde=51)
-        st.success("20 empleados generados.")
+    st.subheader("⚙️ Generar proyectos desde empleados")
+    if st.button("Generar proyectos automáticos desde empleados"):
+        guardar_proyectos_desde_trabajadores()
+        st.success("Proyectos generados correctamente en la base de datos.")
 
     
     with st.expander("➕ Agregar nuevo empleado"):
