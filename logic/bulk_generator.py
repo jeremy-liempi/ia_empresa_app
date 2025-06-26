@@ -25,3 +25,20 @@ def generar_empleados_aleatorios(cantidad, desde=51):
 
         subir_trabajador(datos, None)
 
+def guardar_proyectos_desde_trabajadores():
+    df = obtener_trabajadores()
+    proyectos_unicos = df["proyecto_actual"].dropna().unique()
+
+    for proyecto in proyectos_unicos:
+        participantes = df[df["proyecto_actual"] == proyecto]["nombre"].tolist()
+
+        data = {
+            "nombre": proyecto,
+            "descripcion": f"Proyecto autogenerado para {proyecto}",
+            "objetivo": f"Objetivo de {proyecto}",
+            "duracion": "4 semanas",
+            "ubicacion": "Santiago",
+            "presupuesto": 10000000,
+            "fecha_inicio": datetime.today().date(),
+            "participantes": participantes
+        }
