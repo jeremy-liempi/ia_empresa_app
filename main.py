@@ -309,10 +309,10 @@ elif seccion == "Proyectos":
                 nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
                 descripcion = st.text_area("Descripción detallada", value=proyecto_data["descripcion"])
                 objetivo = st.text_input("Objetivo", value=proyecto_data["objetivo"])
-                duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, value=duracion_inicial)
                 ubicacion = st.text_input("Ubicación", value=proyecto_data["ubicacion"])
                 presupuesto = st.number_input("Presupuesto", min_value=0, value=int(proyecto_data["presupuesto"]))
                 fecha_inicio = st.date_input("Fecha de inicio", value=pd.to_datetime(proyecto_data["fecha_inicio"]))
+                duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, value=duracion_inicial)
                 fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
         
                 participantes = st.multiselect(
