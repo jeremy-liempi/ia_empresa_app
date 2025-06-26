@@ -252,7 +252,21 @@ elif seccion == "Gestión de empleados":
             empleado = empleados_df[empleados_df["id"] == id_descarga]
             if not empleado.empty and "cv_url" in empleado.columns:
                 cv_url = empleado.iloc[0]["cv_url"]
-                st.markdown(f"[Descargar CV]({cv_url})", unsafe_allow_html=True)
+    
+                # Descargar el archivo desde la URL pública
+                try:
+                    response = requests.get(cv_url)
+                    if response.status_code == 200:
+                        st.download_button(
+                            label="📄 Descargar CV",
+                            data=response.content,
+                            file_name="cv_empleado.pdf",
+                            mime="application/pdf"
+                        )
+                    else:
+                        st.error("No se pudo descargar el archivo. Verifica que la URL sea pública.")
+                except Exception as e:
+                    st.error(f"Error al descargar el archivo: {e}")
             else:
                 st.warning("No se encontró un empleado con ese ID o no tiene CV.")
 
