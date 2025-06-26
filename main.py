@@ -286,7 +286,7 @@ elif seccion == "Proyectos":
                 nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
                 descripcion = st.text_area("Descripción detallada", value=proyecto_data.get("descripcion", ""))
                 objetivo = st.text_input("Objetivo", value=proyecto_data.get("objetivo", ""))
-                 duracion = st.text_input("Duración estimada", value=proyecto_data.get("duracion", ""))
+                duracion = st.text_input("Duración estimada", value=proyecto_data.get("duracion", ""))
                 ubicacion = st.text_input("Ubicación", value=proyecto_data.get("ubicacion", ""))
                 presupuesto = st.number_input("Presupuesto", min_value=0, value=proyecto_data.get("presupuesto", 0))
                 fecha_inicio = st.date_input("Fecha de inicio", value=proyecto_data.get("fecha_inicio", date.today()))
