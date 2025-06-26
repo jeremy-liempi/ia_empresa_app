@@ -406,9 +406,9 @@ elif seccion == "Proyectos":
             st.markdown(f"### {p['nombre']}")
             st.write(f"**Descripción:** {p.get('descripcion', '')}")
             st.write(f"**Objetivo:** {p.get('objetivo', '')}")
-            st.write(f"**Duración:** {p.get('duracion', '')}")
             st.write(f"**Ubicación:** {p.get('ubicacion', '')}")
             st.write(f"**Presupuesto:** {p.get('presupuesto', '')}")
             st.write(f"**Fecha de inicio:** {p.get('fecha_inicio', '')}")
+            st.write(f"**Duración:** {p.get('duracion', '')}")
             st.write(f"**Participantes:** {', '.join(p.get('participantes', []))}")
 
