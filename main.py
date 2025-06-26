@@ -269,13 +269,13 @@ elif seccion == "Proyectos":
 
     # === ELIMINAR PROYECTO ===
     st.subheader("🗑️ Eliminar proyecto")
-        if sub_proy == "Eliminar proyecto":
-            proyectos = obtener_proyectos()
-            opciones = {p["nombre"]: p["id"] for p in proyectos}
-            sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
-            if st.button("Eliminar proyecto"):
-                eliminar_proyecto(opciones[sel])
-                st.success("Proyecto eliminado.")
+    if sub_proy == "Eliminar proyecto":
+        proyectos = obtener_proyectos()
+        opciones = {p["nombre"]: p["id"] for p in proyectos}
+        sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
+        if st.button("Eliminar proyecto"):
+            eliminar_proyecto(opciones[sel])
+            st.success("Proyecto eliminado.")
 
 
     # === PROYECTOS ACTUALES ===
