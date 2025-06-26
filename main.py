@@ -254,7 +254,7 @@ elif seccion == "Proyectos":
         "Eliminar proyecto",
         "Proyectos actuales asignados"
     ])
-    st.title(f"📁 {sub_proy}")
+    st.header("🤝Apoyo para Proyectos Entrantes")
 
     # === SELECCIÓN DE SEMANAS ===
     if sub_proy == "Apoyo para Proyectos Entrantes":
