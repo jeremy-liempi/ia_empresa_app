@@ -42,7 +42,7 @@ if not df_empleados.empty:
 if seccion == "Dashboard":
     submenu = st.sidebar.selectbox("📊 Submenú Dashboard", ["Profesionales por rol", "Horas por proyecto", "Disponibilidad en semanas", "Faltantes por rol"])
     
-        submenu = st.sidebar.selectbox("📊 Submenú Dashboard", [
+    submenu = st.sidebar.selectbox("📊 Submenú Dashboard", [
         "Profesionales por rol",
         "Horas por proyecto",
         "Disponibilidad en semanas",
