@@ -259,9 +259,52 @@ elif seccion == "Proyectos":
             # Aquí iría la lógica para insertar el proyecto en Supabase (a implementar en supabase_utils.py)
 
     # === EDITAR PROYECTO ===
-    if sub_proy == "Editar proyecto":
-        proyectos = obtener_proyectos()
-        # aquí usar st.selectbox(proyectos) y luego un formulario con guardar_proyecto o update
+    elif sub_proy == "Editar proyecto":
+        proyectos = obtener_proyectos()  # Asegúrate que esta función devuelve lista de dicts con al menos 'id' y 'nombre'
+        opciones = {p["nombre"]: p["id"] for p in proyectos}
+        
+        if not opciones:
+            st.info("No hay proyectos para editar.")
+        else:
+            proyecto_sel = st.selectbox("Selecciona proyecto a editar", list(opciones.keys()))
+            proyecto_id = opciones[proyecto_sel]
+            
+            # Obtener datos actuales del proyecto seleccionado (deberías tener función tipo obtener_proyecto_por_id)
+            proyecto_data = obtener_proyecto_por_id(proyecto_id)
+            
+            if proyecto_data:
+                with st.form("form_editar_proyecto"):
+                    nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
+                    descripcion = st.text_area("Descripción detallada", value=proyecto_data.get("descripcion", ""))
+                    objetivo = st.text_input("Objetivo", value=proyecto_data.get("objetivo", ""))
+                    duracion = st.text_input("Duración estimada", value=proyecto_data.get("duracion", ""))
+                    ubicacion = st.text_input("Ubicación", value=proyecto_data.get("ubicacion", ""))
+                    presupuesto = st.number_input("Presupuesto", min_value=0, value=proyecto_data.get("presupuesto", 0))
+                    fecha_inicio = st.date_input("Fecha de inicio", value=proyecto_data.get("fecha_inicio", date.today()))
+                    
+                    # Para los participantes: si tienes una lista de nombres guardados, usar multiselect con los que ya están
+                    participantes_actuales = proyecto_data.get("participantes", [])
+                    todos_trabajadores = [e["nombre"] for e in obtener_trabajadores().to_dict(orient="records")]
+                    participantes = st.multiselect("Selecciona trabajadores para este proyecto", options=todos_trabajadores, default=participantes_actuales)
+                    
+                    submit_edit = st.form_submit_button("Guardar cambios")
+                    
+                    if submit_edit:
+                        datos_actualizados = {
+                            "nombre": nombre,
+                            "descripcion": descripcion,
+                            "objetivo": objetivo,
+                            "duracion": duracion,
+                            "ubicacion": ubicacion,
+                            "presupuesto": presupuesto,
+                            "fecha_inicio": fecha_inicio.isoformat(),
+                            "participantes": participantes,
+                        }
+                        # Aquí la función para actualizar proyecto en la base de datos
+                        actualizar_proyecto(proyecto_id, datos_actualizados)
+                        st.success(f"Proyecto '{nombre}' actualizado correctamente.")
+            else:
+                st.error("No se pudo cargar la información del proyecto seleccionado.")
 
 
     # === ELIMINAR PROYECTO ===
