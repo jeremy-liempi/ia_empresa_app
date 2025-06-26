@@ -63,39 +63,51 @@ elif seccion == "Gestión de empleados":
         st.dataframe(df_empleados, use_container_width=True)
 
     with st.expander("➕ Agregar nuevo empleado"):
-        with st.form("nuevo_empleado"):
-            nombre = st.text_input("Nombre completo")
-            rut = st.text_input("RUT")
-            correo = st.text_input("Correo")
-            telefono = st.text_input("Teléfono")
-            cargo = st.text_input("Cargo")
-            area = st.text_input("Área")
-            skills = st.text_input("Skills (separadas por coma)")
-            experiencia = st.number_input("Años de experiencia", 0, 50, step=1)
-            horas = st.number_input("Horas disponibles/semana", 0, 168, step=1)
-            estado = st.selectbox("Estado", ["Activo", "Disponible", "Licencia"])
-            cv = st.file_uploader("CV (PDF)", type=["pdf"])
+       with st.form("form_agregar"):
+    nombre = st.text_input("Nombre completo")
+    rut = st.text_input("RUT")
+    correo = st.text_input("Correo institucional")
+    cargo = st.text_input("Cargo")
+    area = st.text_input("Área funcional")
+    años = st.number_input("Años de experiencia", min_value=0, max_value=50)
+    horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
+    skills = st.text_input("Skills (separadas por comas)")
+    estado = st.selectbox("Estado", ["Activo", "En proyecto", "Disponible", "Licencia"])
 
-            enviado = st.form_submit_button("Agregar")
+    proyecto_actual = st.text_input("Proyecto actual (dejar vacío si no está en proyecto)")
 
-            if enviado:
-                datos = {
-                    "nombre": nombre,
-                    "rut": rut,
-                    "correo": correo,
-                    "telefono": telefono,
-                    "cargo": cargo,
-                    "area": area,
-                    "skills": [s.strip() for s in skills.split(",") if s.strip()],
-                    "años_experiencia": experiencia,
-                    "horas_por_semana": horas,
-                    "estado": estado,
-                    "proyecto_actual": None,
-                    "inicio_proyecto": None,
-                    "fin_proyecto": None,
-                }
-                subir_trabajador(datos, cv)
-                st.success("Empleado agregado correctamente. Recarga la página para ver los cambios.")
+    # Mostrar fechas solo si proyecto_actual no está vacío
+    if proyecto_actual.strip() != "":
+        inicio_proyecto = st.date_input("Fecha de inicio del proyecto")
+        fin_proyecto = st.date_input("Fecha fin del proyecto")
+    else:
+        inicio_proyecto = None
+        fin_proyecto = None
+
+    cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+
+    if st.form_submit_button("Subir Empleado"):
+        datos = {
+            "nombre": nombre,
+            "rut": rut,
+            "correo": correo,
+            "cargo": cargo,
+            "area": area,
+            "años_experiencia": años,
+            "horas_por_semana": horas,
+            "skills": [s.strip() for s in skills.split(",") if s.strip()],
+            "estado": estado,
+            "proyecto_actual": proyecto_actual if proyecto_actual.strip() != "" else None,
+            # Convertir fechas a string ISO o None
+            "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
+            "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
+        }
+
+        if cv:
+            subir_trabajador(datos, cv)
+        else:
+            subir_trabajador(datos, None)
+        st.success("Empleado agregado correctamente. Recarga la página para ver los cambios.")
 
     with st.expander("🗑️ Eliminar empleado"):
         id_del = st.number_input("ID a eliminar", min_value=1, step=1)
