@@ -204,14 +204,6 @@ elif seccion == "Proyectos":
     ])
     st.title(sub_proy)
 
-    submenu_proyectos = st.sidebar.radio("Submenú Proyectos", [
-        "Apoyo para Proyectos Entrantes",
-        "Agregar nuevo proyecto a la base de datos",
-        "Editar proyecto",
-        "Eliminar proyecto",
-        "Proyectos actuales asignados"
-    ])
-
     # === SELECCIÓN DE SEMANAS ===
     if sub_proy == "Apoyo para Proyectos Entrantes":
         semanas_inicio = st.slider("¿En cuántas semanas se planea iniciar el proyecto?", 0, 52, 0)
