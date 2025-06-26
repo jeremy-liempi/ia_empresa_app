@@ -313,7 +313,7 @@ elif seccion == "Proyectos":
             (df_empleados["semanas_disponible"] <= semanas_inicio)
         ]
         st.subheader("👥 Profesionales disponibles en ese plazo")
-        st.dataframe(disponibles, use_container_width=True)
+        st.dataframe(disponibles, use_container_width=True, height=270)
 
         # === SUGERENCIA IA ===
         st.subheader("🧠 Ayuda inteligente para llevar a cabo el proyecto")
