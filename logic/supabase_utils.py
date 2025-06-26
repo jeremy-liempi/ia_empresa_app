@@ -39,18 +39,10 @@ def subir_trabajador(datos: dict, cv_file):
             unique_filename = f"{uuid.uuid4()}.pdf"
             path_on_bucket = f"cvs/{unique_filename}"
 
-            # Subir archivo
-            supabase.storage.from_("cvs").upload(path_on_bucket, cv_file.read())
-
-            # Hacer público
-            supabase.storage.from_("cvs").update(path_on_bucket, {
-                "cacheControl": "3600",
-                "upsert": True
-            })
-
-            # Obtener URL pública correctamente
+            file_content = cv_file.read()
+            supabase.storage.from_("cvs").upload(path_on_bucket, file_content)
+            supabase.storage.from_("cvs").update(path_on_bucket, {"cacheControl": "3600", "upsert": True})
             public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket).get("publicURL")
-
             datos["cv_url"] = public_url
 
         if isinstance(datos.get("skills"), list):
