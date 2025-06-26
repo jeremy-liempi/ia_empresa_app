@@ -29,7 +29,7 @@ from logic.ai_utils import sugerir_metodologia_y_equipo
 # Configuración de la app
 st.set_page_config(page_title="MyMatch", layout="wide", page_icon="assets/logo.png")
 st.sidebar.image("assets/logo.png", width=150)
-seccion = st.sidebar.radio("Navegación", ["Dashboard", "Gestión de empleados", "Proyectos"])
+seccion = st.sidebar.selectbox("Navegación", ["Dashboard", "Gestión de empleados", "Proyectos"])
 
 # Obtener empleados
 df_empleados = obtener_trabajadores()
@@ -39,49 +39,49 @@ if not df_empleados.empty:
     df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
 
 # === DASHBOARD ===
+
 if seccion == "Dashboard":
     
-    submenu = st.sidebar.selectbox("📊 Submenú Dashboard", [
-        "Profesionales por rol",
-        "Horas por proyecto",
-        "Disponibilidad en semanas",
-        "Faltantes por rol"
-    ])
-    st.title(f"📊 {submenu}")
+    if seccion == "Dashboard":
+        submenu_dash = st.sidebar.radio("Submenú Dashboard", ["Profesionales por rol", "Horas por proyecto", "Disponibilidad y faltantes"])
 
+    st.title(f"📊 {submenu_dash}")
 
     if df_empleados.empty:
         st.warning("No hay empleados cargados aún.")
         st.stop()
 
-    st.subheader("👥 Profesionales por rol")
-    if "cargo" in df_empleados.columns:
-        conteo_cargos = df_empleados["cargo"].value_counts()
-        st.bar_chart(conteo_cargos.rename_axis("Cargo").rename("Cantidad"))
+    if submenu_dash == "Profesionales por rol":
+        st.subheader("👥 Profesionales por rol")
+        if "cargo" in df_empleados.columns:
+            conteo_cargos = df_empleados["cargo"].value_counts()
+            st.bar_chart(conteo_cargos.rename_axis("Cargo").rename("Cantidad"))
 
-    st.subheader("⏳ Disponibilidad de profesionales (semanas restantes)")
-    if "semanas_disponible" in df_empleados.columns:
-        st.bar_chart(
-            df_empleados.set_index("nombre")["semanas_disponible"].rename("Semanas disponibles")
-        )
+    elif submenu_dash == "Horas por proyecto":
+        st.subheader("🕓 Horas asignadas por proyecto")
+        if "proyecto_actual" in df_empleados.columns:
+            horas = (
+                df_empleados.dropna(subset=["proyecto_actual"])
+                .groupby("proyecto_actual")["horas_por_semana"]
+                .sum()
+                .rename("Horas por semana")
+            )
+            st.bar_chart(horas)
 
-    st.subheader("🕓 Horas asignadas por proyecto")
-    if "proyecto_actual" in df_empleados.columns:
-        horas = (
-            df_empleados.dropna(subset=["proyecto_actual"])
-            .groupby("proyecto_actual")["horas_por_semana"]
-            .sum()
-            .rename("Horas por semana")
-        )
-        st.bar_chart(horas)
+    elif submenu_dash == "Disponibilidad y faltantes":
+        st.subheader("⏳ Disponibilidad de profesionales (semanas restantes)")
+        if "semanas_disponible" in df_empleados.columns:
+            st.bar_chart(
+                df_empleados.set_index("nombre")["semanas_disponible"].rename("Semanas disponibles")
+            )
 
-    st.subheader("📉 Cargos con menos de 2 profesionales")
-    faltan = df_empleados["cargo"].value_counts()
-    faltantes = faltan[faltan < 2]
-    if not faltantes.empty:
-        st.write(faltantes.rename("Cantidad"))
-    else:
-        st.success("No faltan profesionales por rol.")
+        st.subheader("📉 Cargos con menos de 2 profesionales")
+        faltan = df_empleados["cargo"].value_counts()
+        faltantes = faltan[faltan < 2]
+        if not faltantes.empty:
+            st.write(faltantes.rename("Cantidad"))
+        else:
+            st.success("No faltan profesionales por rol.")
 
 
 # === GESTIÓN DE EMPLEADOS ===
@@ -195,7 +195,13 @@ elif seccion == "Gestión de empleados":
 
 # === PROYECTOS ===
 elif seccion == "Proyectos":
-    st.title("📁 Apoyo para Proyectos Entrantes")
+    submenu_proyectos = st.sidebar.radio("Submenú Proyectos", [
+        "Apoyo para Proyectos Entrantes",
+        "Agregar nuevo proyecto a la base de datos",
+        "Editar proyecto",
+        "Eliminar proyecto",
+        "Proyectos actuales asignados"
+    ])
 
     # === SELECCIÓN DE SEMANAS ===
     semanas_inicio = st.slider("¿En cuántas semanas se planea iniciar el proyecto?", 0, 52, 0)
