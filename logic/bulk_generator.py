@@ -1,4 +1,6 @@
 from supabase import create_client
+from datetime import date, timedelta
+from .supabase_utils import subir_trabajador
 import streamlit as st
 import random
 import uuid
@@ -11,22 +13,37 @@ roles = ["Desarrollador", "Diseñador", "Tester", "Scrum Master", "Analista"]
 areas = ["TI", "UX", "QA", "PMO", "Data"]
 estados = ["Disponible", "En proyecto", "No disponible"]
 
-def generar_empleados_genericos(n=15):
-    for i in range(1, n + 1):
-        nombre = f"Empleado{i}"
+def generar_empleados_en_proyecto():
+    roles = ["Ingeniero", "Diseñador", "Analista", "Líder de proyecto", "Tester"]
+    areas = ["TI", "Diseño", "Finanzas", "Operaciones", "RRHH"]
+    proyectos = ["Proyecto A", "Proyecto B", "Proyecto C"]
+
+    for i in range(1, 16):
+        nombre = f"EmpleadoP{i}"
+        rut = f"12.345.{i:03d}-K"
+        correo = f"empleadoP{i}@empresa.com"
+        cargo = random.choice(roles)
+        area = random.choice(areas)
+        skills = ["Python", "Excel", "Comunicación"]
+        estado = "En proyecto"
+        proyecto_actual = random.choice(proyectos)
+        inicio_proyecto = date.today() - timedelta(weeks=random.randint(1, 4))
+        fin_proyecto = date.today() + timedelta(weeks=random.randint(1, 6))
+        horas = random.randint(20, 40)
+
         datos = {
             "nombre": nombre,
-            "rut": f"12345678-{i}",
-            "correo": f"{nombre.lower()}@empresa.cl",
-            "cargo": random.choice(roles),
-            "area": random.choice(areas),
-            "skills": "{Python,Trabajo en equipo}",
-            "estado": random.choice(estados),
-            "proyecto_actual": None,
-            "inicio_proyecto": None,
-            "fin_proyecto": None,
+            "rut": rut,
+            "correo": correo,
+            "cargo": cargo,
+            "area": area,
             "años_experiencia": random.randint(1, 10),
-            "horas_por_semana": random.choice([20, 30, 40]),
-            "cv_url": "",
+            "horas_por_semana": horas,
+            "skills": skills,
+            "estado": estado,
+            "proyecto_actual": proyecto_actual,
+            "inicio_proyecto": inicio_proyecto.isoformat(),
+            "fin_proyecto": fin_proyecto.isoformat(),
         }
-        supabase.table("trabajadores").insert(datos).execute()
+
+        subir_trabajador(datos, cv_file=None)
