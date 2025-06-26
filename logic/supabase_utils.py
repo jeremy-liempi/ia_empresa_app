@@ -66,3 +66,12 @@ def eliminar_trabajador(id_empleado: int):
         supabase.table("trabajadores").delete().eq("id", id_empleado).execute()
     except Exception as e:
         st.error(f"Error al eliminar trabajador: {e}")
+def actualizar_trabajador(id_empleado: int, datos: dict):
+    """
+    Actualiza los campos de un trabajador por su ID.
+    """
+    try:
+        supabase.table("trabajadores").update(datos).eq("id", id_empleado).execute()
+    except Exception as e:
+        st.error(f"Error al actualizar trabajador: {e}")
+
