@@ -180,34 +180,44 @@ elif seccion == "Gestión de empleados":
 
 # === PROYECTOS ===
 elif seccion == "Proyectos":
-    st.title("📁 Gestión de Proyectos")
+    st.title("📁 Apoyo para proyectos entrantes")
 
-    st.subheader("📌 Crear nuevo proyecto con IA")
-    objetivo = st.text_input("Objetivo del proyecto")
-    duracion = st.text_input("Duración estimada (ej. 4 semanas)")
-    actividades = st.text_area("Actividades a realizar")
+    semanas_inicio = st.slider("¿En cuántas semanas planeas iniciar el proyecto?", 0, 52, 0)
+    disponibles = df_empleados[
+        (df_empleados["estado"] == "Disponible") |
+        (df_empleados["semanas_disponible"] <= semanas_inicio)
+    ]
+    st.subheader("👥 Trabajadores disponibles en ese plazo")
+    st.dataframe(disponibles, use_container_width=True)
+
+    st.subheader("🧠 Sugerencia inteligente para ejecutar el proyecto")
+    descripcion = st.text_area("Describe el proyecto, objetivos, desafíos o requerimientos")
+    presupuesto = st.number_input("Presupuesto estimado (CLP)", 0)
     ubicacion = st.text_input("Ubicación")
-    presupuesto = st.number_input("Presupuesto disponible", min_value=0)
-    fecha_inicio = st.date_input("Fecha de inicio")
-
-    if st.button("Generar proyecto con IA"):
-        descripcion = (
-            f"Objetivo: {objetivo}\n"
-            f"Duración: {duracion}\n"
-            f"Actividades: {actividades}\n"
-            f"Ubicación: {ubicacion}\n"
-            f"Presupuesto: {presupuesto} CLP"
-        )
-        with st.spinner("Generando sugerencia de proyecto..."):
+    if st.button("Sugerir solución óptima"):
+        with st.spinner("Consultando IA..."):
             sugerencia = sugerir_metodologia_y_equipo(
-                descripcion, ubicacion, presupuesto, df_empleados.to_dict(orient="records")
+                descripcion, ubicacion, presupuesto,
+                disponibles.to_dict(orient=\"records\")
             )
-        st.subheader("🔧 Proyecto generado por IA")
         st.markdown(sugerencia)
 
-    st.subheader("📂 Proyectos actuales")
-    proyectos = df_empleados["proyecto_actual"].dropna().unique()
+    st.subheader("📥 Agregar proyecto (solo visual)")
+    with st.form(\"form_agregar_proyecto\"):
+        nombre = st.text_input(\"Nombre del proyecto\")        
+        objetivo = st.text_input(\"Objetivo general\")        
+        if st.form_submit_button(\"Agregar proyecto\"):
+            st.success(f\"Proyecto '{nombre}' agregado correctamente (sólo visual)\")
+    
+    st.subheader(\"✏️ Editar proyecto (simulado)\")
+    st.info(\"Funcionalidad futura: permite editar proyectos guardados\")
+
+    st.subheader(\"🗑️ Eliminar proyecto (simulado)\")
+    st.info(\"Funcionalidad futura: permite eliminar proyectos guardados\")
+
+    st.subheader(\"📂 Proyectos actuales en curso\")
+    proyectos = df_empleados[\"proyecto_actual\"].dropna().unique()
     for p in proyectos:
-        st.markdown(f"### {p}")
-        dfp = df_empleados[df_empleados["proyecto_actual"] == p]
-        st.dataframe(dfp[["nombre", "cargo", "horas_por_semana", "semanas_disponible"]], use_container_width=True)
+        st.markdown(f\"### {p}\")
+        dfp = df_empleados[df_empleados[\"proyecto_actual\"] == p]
+        st.dataframe(dfp[[\"nombre\", \"cargo\", \"horas_por_semana\", \"semanas_disponible\"]], use_container_width=True)
