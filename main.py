@@ -15,14 +15,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Importaciones locales
+# main.py, arriba de todo
+
 from logic.supabase_utils import (
     obtener_trabajadores,
     subir_trabajador,
     eliminar_trabajador,
+    actualizar_trabajador,
     guardar_proyecto,
     obtener_proyectos,
-    eliminar_proyecto
+    eliminar_proyecto,
+    obtener_proyecto_por_id,      # <— agrégalo
+    actualizar_proyecto          # <— agrégalo
 )
+
 from logic.availability import calcular_semanas_disponibilidad
 from logic.ai_utils import sugerir_metodologia_y_equipo
 
