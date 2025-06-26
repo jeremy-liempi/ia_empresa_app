@@ -302,14 +302,13 @@ elif seccion == "Proyectos":
             nombre_sel = st.selectbox("Selecciona proyecto a editar", list(opciones.keys()))
             proyecto_id = opciones[nombre_sel]
             proyecto_data = obtener_proyecto_por_id(proyecto_id)
-        
+            duracion_inicial = (
+                (pd.to_datetime(proyecto_data["fecha_fin"]) - pd.to_datetime(proyecto_data["fecha_inicio"])).days // 7
+            )  
             with st.form("form_editar_proyecto"):
                 nombre = st.text_input("Nombre del proyecto", value=proyecto_data["nombre"])
                 descripcion = st.text_area("Descripción detallada", value=proyecto_data["descripcion"])
                 objetivo = st.text_input("Objetivo", value=proyecto_data["objetivo"])
-                duracion_inicial = (
-                    (pd.to_datetime(proyecto_data["fecha_fin"]) - pd.to_datetime(proyecto_data["fecha_inicio"])).days // 7
-                )
                 duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, value=duracion_inicial)
                 ubicacion = st.text_input("Ubicación", value=proyecto_data["ubicacion"])
                 presupuesto = st.number_input("Presupuesto", min_value=0, value=int(proyecto_data["presupuesto"]))
