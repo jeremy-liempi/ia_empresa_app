@@ -76,15 +76,15 @@ elif seccion == "Gestión de empleados":
             skills = st.text_input("Skills (separadas por comas)")
             estado_seleccionado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
     
-            # Si está en proyecto, pedir estos datos también fuera
-            proyecto_actual = None
-            inicio_proyecto = None
-            fin_proyecto = None
+        # Si está en proyecto, pedir estos datos también fuera
+        proyecto_actual = None
+        inicio_proyecto = None
+        fin_proyecto = None
             
-            if estado_seleccionado == "En proyecto":
-                proyecto_actual = st.text_input("Proyecto actual")
-                inicio_proyecto = st.date_input("Fecha inicio del proyecto")
-                fin_proyecto = st.date_input("Fecha fin del proyecto")
+        if estado_seleccionado == "En proyecto":
+            proyecto_actual = st.text_input("Proyecto actual")
+            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
+            fin_proyecto = st.date_input("Fecha fin del proyecto")
                 
             cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
     
