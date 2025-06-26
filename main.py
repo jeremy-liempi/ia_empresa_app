@@ -311,7 +311,7 @@ elif seccion == "Proyectos":
 
 
     # === ELIMINAR PROYECTO ===
-    if sub_proy == "Eliminar proyecto":
+    elif sub_proy == "Eliminar proyecto":
         proyectos = obtener_proyectos()
         opciones = {p["nombre"]: p["id"] for p in proyectos}
         sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
@@ -321,7 +321,7 @@ elif seccion == "Proyectos":
 
 
     # === PROYECTOS ACTUALES ===
-    if sub_proy == "Proyectos actuales asignados":
+    elif sub_proy == "Proyectos actuales asignados":
         proyectos = obtener_proyectos()
         for p in proyectos:
             st.markdown(f"### {p['nombre']}")
