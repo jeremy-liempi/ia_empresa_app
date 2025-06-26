@@ -62,6 +62,12 @@ elif seccion == "Gestión de empleados":
     if not df_empleados.empty:
         st.dataframe(df_empleados, use_container_width=True)
 
+    # SOLO ejecutar una vez
+    from logic.bulk_generator import generar_empleados_genericos
+    if st.button("⚡ Generar 15 empleados genéricos"):
+        generar_empleados_genericos()
+        st.success("Empleados generados.")
+
     with st.expander("➕ Agregar nuevo empleado"):
        with st.form("form_agregar"):
     nombre = st.text_input("Nombre completo")
