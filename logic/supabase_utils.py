@@ -71,7 +71,7 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
             "nombre": nombre,
             "descripcion": descripcion,
             "objetivo": objetivo,
-            "duracion": duracion,
+            "duracion": f"{duracion_semanas} semanas",
             "ubicacion": ubicacion,
             "presupuesto": presupuesto,
             "fecha_inicio": fecha_inicio.isoformat() if hasattr(fecha_inicio, "isoformat") else fecha_inicio,
