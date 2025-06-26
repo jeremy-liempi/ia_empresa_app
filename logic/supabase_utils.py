@@ -2,18 +2,16 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client
 import uuid
+import os
 
-# Leer credenciales desde Streamlit Secrets
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+# Leer credenciales desde Streamlit Secrets o entorno
+SUPABASE_URL = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL")
+SUPABASE_KEY = st.secrets.get("SUPABASE_KEY") or os.getenv("SUPABASE_KEY")
 
 # Cliente Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def obtener_trabajadores() -> pd.DataFrame:
-    """
-    Recupera todos los trabajadores desde Supabase como DataFrame
-    """
     try:
         resp = supabase.table("trabajadores").select("*").execute()
         df = pd.DataFrame(resp.data)
@@ -26,7 +24,6 @@ def obtener_trabajadores() -> pd.DataFrame:
                 "cv_url"
             ])
 
-        # Convertir skills de texto a lista si vienen en formato "{a,b,c}"
         if "skills" in df.columns:
             df["skills"] = df["skills"].apply(lambda s: s.strip("{}").split(",") if isinstance(s, str) else [])
 
@@ -37,11 +34,7 @@ def obtener_trabajadores() -> pd.DataFrame:
         return pd.DataFrame()
 
 def subir_trabajador(datos: dict, cv_file):
-    """
-    Sube un nuevo trabajador a Supabase y su CV al bucket "cvs"
-    """
     try:
-        # Subir CV si existe
         if cv_file:
             unique_filename = f"{uuid.uuid4()}.pdf"
             path_on_bucket = f"cvs/{unique_filename}"
@@ -49,7 +42,6 @@ def subir_trabajador(datos: dict, cv_file):
             public_url = f"{SUPABASE_URL}/storage/v1/object/public/{path_on_bucket}"
             datos["cv_url"] = public_url
 
-        # Convertir skills a texto con formato {a,b,c}
         if isinstance(datos.get("skills"), list):
             datos["skills"] = "{" + ",".join(datos["skills"]) + "}"
 
@@ -59,22 +51,16 @@ def subir_trabajador(datos: dict, cv_file):
         st.error(f"Error al subir trabajador: {e}")
 
 def eliminar_trabajador(id_empleado: int):
-    """
-    Elimina un trabajador por su ID
-    """
     try:
         supabase.table("trabajadores").delete().eq("id", id_empleado).execute()
     except Exception as e:
         st.error(f"Error al eliminar trabajador: {e}")
+
 def actualizar_trabajador(id_empleado: int, datos: dict):
-    """
-    Actualiza los campos de un trabajador por su ID.
-    """
     try:
         supabase.table("trabajadores").update(datos).eq("id", id_empleado).execute()
     except Exception as e:
         st.error(f"Error al actualizar trabajador: {e}")
-
 
 def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
     try:
@@ -91,37 +77,26 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
     except Exception as e:
         st.error(f"Error al guardar proyecto: {e}")
 
-        response = supabase.table("proyectos").insert(data).execute()
-        return response
-
-    except Exception as e:
-        st.error(f"Error al guardar proyecto: {e}")
-        return None
-from supabase import create_client
-import os
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
 def obtener_proyectos():
-    response = supabase.table("proyectos").select("*").execute()
-    if response.status_code == 200:
-        return response.data
-    return []
+    try:
+        return supabase.table("proyectos").select("*").execute().data
+    except Exception as e:
+        st.error(f"Error al obtener proyectos: {e}")
+        return []
 
 def obtener_proyecto_por_id(id_proyecto):
-    response = supabase.table("proyectos").select("*").eq("id", id_proyecto).single().execute()
-    if response.status_code == 200:
-        return response.data
-    return None
-
+    try:
+        return supabase.table("proyectos").select("*").eq("id", id_proyecto).single().execute().data
+    except Exception as e:
+        st.error(f"Error al obtener proyecto por ID: {e}")
+        return None
 
 def actualizar_proyecto(id_proyecto, datos_actualizados):
-    response = supabase.table("proyectos").update(datos_actualizados).eq("id", id_proyecto).execute()
-    return response
-
+    try:
+        return supabase.table("proyectos").update(datos_actualizados).eq("id", id_proyecto).execute()
+    except Exception as e:
+        st.error(f"Error al actualizar proyecto: {e}")
+        return None
 
 def eliminar_proyecto(proyecto_id):
     try:
