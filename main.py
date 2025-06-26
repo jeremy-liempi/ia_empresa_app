@@ -236,7 +236,7 @@ elif seccion == "Proyectos":
                 st.markdown(sugerencia)
 
 
-    elif sub_proy == "Agregar nuevo proyecto":
+    if sub_proy == "Agregar nuevo proyecto":
         with st.form("form_agregar_proyecto"):
             nombre = st.text_input("Nombre del proyecto")
             descripcion = st.text_area("Descripción detallada")
@@ -262,7 +262,7 @@ elif seccion == "Proyectos":
 
 
     # === EDITAR PROYECTO ===
-    elif sub_proy == "Editar proyecto":
+    if sub_proy == "Editar proyecto":
         proyectos = obtener_proyectos()  # Asegúrate que esta función devuelve lista de dicts con al menos 'id' y 'nombre'
         opciones = {p["nombre"]: p["id"] for p in proyectos}
         
@@ -311,7 +311,7 @@ elif seccion == "Proyectos":
 
 
     # === ELIMINAR PROYECTO ===
-    elif sub_proy == "Eliminar proyecto":
+    if sub_proy == "Eliminar proyecto":
         proyectos = obtener_proyectos()
         opciones = {p["nombre"]: p["id"] for p in proyectos}
         sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
@@ -321,7 +321,7 @@ elif seccion == "Proyectos":
 
 
     # === PROYECTOS ACTUALES ===
-    elif sub_proy == "Proyectos actuales asignados":
+    if sub_proy == "Proyectos actuales asignados":
         proyectos = obtener_proyectos()
         for p in proyectos:
             st.markdown(f"### {p['nombre']}")
