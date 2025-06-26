@@ -40,24 +40,20 @@ def subir_trabajador(datos: dict, cv_file):
             unique_filename = f"{uuid.uuid4()}.pdf"
             path_on_bucket = f"cvs/{unique_filename}"
 
-            # Leer el archivo como bytes
-            file_bytes = cv_file.read()
+            # Guardar archivo temporalmente
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                tmp.write(cv_file.read())
+                tmp_path = tmp.name
 
-            # Subir al bucket cvs
-            supabase.storage.from_("cvs").upload(
-                path_on_bucket,
-                file=file_bytes,
-                file_options={"content-type": "application/pdf"}
-            )
-
-            # Hacerlo público (por si no lo estaba aún)
-            supabase.storage.from_("cvs").update(path_on_bucket, {
-                "cacheControl": "3600", "upsert": True
-            })
+            # Subir el archivo desde su ruta temporal
+            supabase.storage.from_("cvs").upload(path_on_bucket, tmp_path)
 
             # Obtener URL pública
             public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket).get("publicURL")
             datos["cv_url"] = public_url
+
+            # Eliminar el archivo temporal
+            os.remove(tmp_path)
 
         if isinstance(datos.get("skills"), list):
             datos["skills"] = "{" + ",".join(datos["skills"]) + "}"
