@@ -64,6 +64,12 @@ def actualizar_trabajador(id_empleado: int, datos: dict):
 
 def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
     try:
+        # Si fecha_inicio es tipo string, no llames a isoformat
+        if hasattr(fecha_inicio, "isoformat"):
+            fecha_inicio_str = fecha_inicio.isoformat()
+        else:
+            fecha_inicio_str = fecha_inicio  # ya es string
+
         supabase.table("proyectos").insert({
             "nombre": nombre,
             "descripcion": descripcion,
@@ -71,11 +77,12 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
             "duracion": duracion,
             "ubicacion": ubicacion,
             "presupuesto": presupuesto,
-            "fecha_inicio": fecha_inicio.isoformat(),
+            "fecha_inicio": fecha_inicio_str,
             "participantes": participantes
         }).execute()
     except Exception as e:
         st.error(f"Error al guardar proyecto: {e}")
+
 
 def obtener_proyectos():
     try:
