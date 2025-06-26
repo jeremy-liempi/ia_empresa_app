@@ -23,4 +23,5 @@ def generar_empleados_aleatorios(cantidad, desde=51):
             "fin_proyecto": None
         }
 
-        subir_trabajador(datos)
+        subir_trabajador(datos, None)
+
