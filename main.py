@@ -34,6 +34,10 @@ seccion = st.sidebar.selectbox("Navegación", ["Dashboard", "Gestión de emplead
 # Obtener empleados
 df_empleados = obtener_trabajadores()
 
+if not obtener_proyectos():
+    from logic.bulk_generator import guardar_proyectos_desde_trabajadores
+    guardar_proyectos_desde_trabajadores()
+
 # Calcular disponibilidad
 if not df_empleados.empty:
     df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
@@ -338,35 +342,4 @@ elif seccion == "Proyectos":
             st.write(f"**Presupuesto:** {p.get('presupuesto', '')}")
             st.write(f"**Fecha de inicio:** {p.get('fecha_inicio', '')}")
             st.write(f"**Participantes:** {', '.join(p.get('participantes', []))}")
-
-
-# Obtener todos los trabajadores
-df = obtener_trabajadores()
-if "proyectos_guardados" not in st.session_state:
-    from logic.bulk_generator import guardar_proyectos_desde_trabajadores
-    guardar_proyectos_desde_trabajadores()
-    st.session_state["proyectos_guardados"] = True
-
-
-# Filtrar trabajadores que tienen proyecto asignado
-trabajadores_con_proyecto = df.dropna(subset=["proyecto_actual"])
-
-# Obtener lista única de proyectos
-proyectos_unicos = trabajadores_con_proyecto["proyecto_actual"].unique()
-
-# Insertar cada proyecto con sus participantes
-for nombre_proyecto in proyectos_unicos:
-    participantes_df = trabajadores_con_proyecto[trabajadores_con_proyecto["proyecto_actual"] == nombre_proyecto]
-    participantes = participantes_df["nombre"].tolist()
-
-    guardar_proyecto(
-        nombre=nombre_proyecto,
-        descripcion=f"Proyecto autogenerado desde trabajadores.",
-        objetivo="Pendiente de definir",
-        duracion="4 semanas",
-        ubicacion="Por definir",
-        presupuesto=1000000,
-        fecha_inicio=date.today(),
-        participantes=participantes
-    )
 
