@@ -254,10 +254,10 @@ elif seccion == "Proyectos":
         "Eliminar proyecto",
         "Proyectos actuales asignados"
     ])
-    st.header("🤝Apoyo para Proyectos Entrantes")
 
     # === SELECCIÓN DE SEMANAS ===
     if sub_proy == "Apoyo para Proyectos Entrantes":
+        st.header("🤝Apoyo para Proyectos Entrantes")
         semanas_inicio = st.slider("¿En cuántas semanas se planea iniciar el proyecto?", 0, 52, 0)
 
         # === TRABAJADORES DISPONIBLES ===
@@ -289,6 +289,7 @@ elif seccion == "Proyectos":
 
 
     if sub_proy == "Agregar nuevo proyecto":
+        st.header("➕Agregar nuevo proyecto")
         with st.form("form_agregar_proyecto"):
             nombre = st.text_input("Nombre del proyecto")
             descripcion = st.text_area("Descripción detallada")
@@ -317,6 +318,7 @@ elif seccion == "Proyectos":
 
     # === EDITAR PROYECTO ===
     if sub_proy == "Editar proyecto":
+        st.header("✏️Editar proyecto")
         proyectos = obtener_proyectos()  # Asegúrate que esta función devuelve lista de dicts con al menos 'id' y 'nombre'
         opciones = {p["nombre"]: p["id"] for p in proyectos}
 
@@ -387,6 +389,7 @@ elif seccion == "Proyectos":
 
     # === ELIMINAR PROYECTO ===
     if sub_proy == "Eliminar proyecto":
+        st.header("🗑️Eliminar proyecto")
         proyectos = obtener_proyectos()
         opciones = {p["nombre"]: p["id"] for p in proyectos}
         sel = st.selectbox("Proyecto a eliminar", list(opciones.keys()))
@@ -397,6 +400,7 @@ elif seccion == "Proyectos":
 
     # === PROYECTOS ACTUALES ===
     if sub_proy == "Proyectos actuales asignados":
+        st.header("📁Proyectos actuales asignados")
         proyectos = obtener_proyectos()
         for p in proyectos:
             st.markdown(f"### {p['nombre']}")
