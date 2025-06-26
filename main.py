@@ -68,7 +68,7 @@ elif seccion == "Gestión de empleados":
         generar_empleados_genericos()
         st.success("Empleados generados.")
 
-        with st.expander("➕ Agregar nuevo empleado"):
+    with st.expander("➕ Agregar nuevo empleado"):
             with st.form("form_agregar"):
                 nombre = st.text_input("Nombre completo")
                 rut = st.text_input("RUT")
