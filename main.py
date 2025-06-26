@@ -109,54 +109,55 @@ elif seccion == "Gestión de empleados":
                 st.success("Empleado agregado correctamente.")
 
 
-        with st.expander("✏️ Editar Empleado"):
-            # Traer datos y seleccionar registro
-            df_editar = obtener_trabajadores()
-            id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
-            emp = df_editar[df_editar["id"] == id_edit].iloc[0]
-    
-            with st.form("form_editar"):
-                # Pre-llenar campos con los valores actuales
-                nombre = st.text_input("Nombre completo", value=emp["nombre"])
-                correo = st.text_input("Correo institucional", value=emp["correo"])
-                cargo = st.text_input("Cargo", value=emp["cargo"])
-                area = st.text_input("Área funcional", value=emp["area"])
-                años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
-                horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
-                estado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], index=["Disponible","En proyecto","No disponible"].index(emp["estado"]))
-                
-                # Si está en proyecto, también permitir editar proyecto y fechas
-                proyecto_actual = emp.get("proyecto_actual") or ""
-                inicio_proyecto = pd.to_datetime(emp["inicio_proyecto"]) if emp["inicio_proyecto"] else None
-                fin_proyecto = pd.to_datetime(emp["fin_proyecto"]) if emp["fin_proyecto"] else None
-                if estado == "En proyecto":
-                    proyecto_actual = st.text_input("Proyecto actual", value=proyecto_actual)
-                    inicio_proyecto = st.date_input("Inicio proyecto", value=inicio_proyecto or date.today())
-                    fin_proyecto    = st.date_input("Fin proyecto",    value=fin_proyecto    or date.today())
-    
-                submit_ed = st.form_submit_button("Guardar cambios")
-                if submit_ed:
-                    datos_upd = {
-                        "nombre": nombre,
-                        "correo": correo,
-                        "cargo": cargo,
-                        "area": area,
-                        "años_experiencia": años,
-                        "horas_por_semana": horas,
-                        "estado": estado,
-                        "proyecto_actual": proyecto_actual if estado=="En proyecto" else None,
-                        "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
-                        "fin_proyecto":    fin_proyecto.isoformat()    if fin_proyecto    else None,
-                    }
-                    actualizar_trabajador(id_edit, datos_upd)
-                    st.success("Empleado actualizado correctamente.")
-    
+    with st.expander("✏️ Editar Empleado"):
+        # Traer datos y seleccionar registro
+        df_editar = obtener_trabajadores()
+        id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
+        emp = df_editar[df_editar["id"] == id_edit].iloc[0]
+
+        with st.form("form_editar"):
+            # Pre-llenar campos con los valores actuales
+            nombre = st.text_input("Nombre completo", value=emp["nombre"])
+            correo = st.text_input("Correo institucional", value=emp["correo"])
+            cargo = st.text_input("Cargo", value=emp["cargo"])
+            area = st.text_input("Área funcional", value=emp["area"])
+            años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
+            horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
+            estado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], index=["Disponible","En proyecto","No disponible"].index(emp["estado"]))
+            
+            # Si está en proyecto, también permitir editar proyecto y fechas
+            proyecto_actual = emp.get("proyecto_actual") or ""
+            inicio_proyecto = pd.to_datetime(emp["inicio_proyecto"]) if emp["inicio_proyecto"] else None
+            fin_proyecto = pd.to_datetime(emp["fin_proyecto"]) if emp["fin_proyecto"] else None
+            if estado == "En proyecto":
+                proyecto_actual = st.text_input("Proyecto actual", value=proyecto_actual)
+                inicio_proyecto = st.date_input("Inicio proyecto", value=inicio_proyecto or date.today())
+                fin_proyecto    = st.date_input("Fin proyecto",    value=fin_proyecto    or date.today())
+
+            submit_ed = st.form_submit_button("Guardar cambios")
+            if submit_ed:
+                datos_upd = {
+                    "nombre": nombre,
+                    "correo": correo,
+                    "cargo": cargo,
+                    "area": area,
+                    "años_experiencia": años,
+                    "horas_por_semana": horas,
+                    "estado": estado,
+                    "proyecto_actual": proyecto_actual if estado=="En proyecto" else None,
+                    "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
+                    "fin_proyecto":    fin_proyecto.isoformat()    if fin_proyecto    else None,
+                }
+                actualizar_trabajador(id_edit, datos_upd)
+                st.success("Empleado actualizado correctamente.")
+
+            
         
-        with st.expander("🗑️ Eliminar empleado"):
-            id_del = st.number_input("ID a eliminar", min_value=1, step=1)
-            if st.button("Eliminar"):
-                eliminar_trabajador(id_del)
-                st.success(f"Empleado con ID {id_del} eliminado.")
+    with st.expander("🗑️ Eliminar empleado"):
+        id_del = st.number_input("ID a eliminar", min_value=1, step=1)
+        if st.button("Eliminar"):
+            eliminar_trabajador(id_del)
+            st.success(f"Empleado con ID {id_del} eliminado.")
 
 # === PROYECTOS ===
 elif seccion == "Proyectos":
