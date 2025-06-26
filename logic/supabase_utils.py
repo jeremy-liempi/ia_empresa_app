@@ -76,10 +76,7 @@ def actualizar_trabajador(id_empleado: int, datos: dict):
         st.error(f"Error al actualizar trabajador: {e}")
 def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
     try:
-        # Convertir lista de participantes en string
-        participantes_str = "{" + ",".join(participantes) + "}"
-
-        data = {
+        supabase.table("proyectos").insert({
             "nombre": nombre,
             "descripcion": descripcion,
             "objetivo": objetivo,
@@ -87,8 +84,10 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
             "ubicacion": ubicacion,
             "presupuesto": presupuesto,
             "fecha_inicio": fecha_inicio.isoformat(),
-            "participantes": participantes_str,
-        }
+            "participantes": participantes
+        }).execute()
+    except Exception as e:
+        st.error(f"Error al guardar proyecto: {e}")
 
         response = supabase.table("proyectos").insert(data).execute()
         return response
@@ -96,3 +95,16 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
     except Exception as e:
         st.error(f"Error al guardar proyecto: {e}")
         return None
+def obtener_proyectos():
+    try:
+        response = supabase.table("proyectos").select("*").execute()
+        return response.data
+    except Exception as e:
+        st.error(f"Error al obtener proyectos: {e}")
+        return []
+
+def eliminar_proyecto(proyecto_id):
+    try:
+        supabase.table("proyectos").delete().eq("id", proyecto_id).execute()
+    except Exception as e:
+        st.error(f"Error al eliminar proyecto: {e}")
