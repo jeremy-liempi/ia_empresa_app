@@ -248,35 +248,28 @@ elif seccion == "Gestión de empleados":
 
     with st.expander("📥 Descargar CV de un Empleado"):
         empleados_df = obtener_trabajadores()
+        id_descarga = st.number_input("🔎 Ingresa el ID del empleado", min_value=1, step=1)
     
-        if empleados_df.empty:
-            st.info("No hay empleados cargados.")
-        else:
-            selected_empleado = st.selectbox(
-                "Selecciona un empleado:",
-                empleados_df["nombre"] + " (ID " + empleados_df["id"].astype(str) + ")"
-            )
-            id_descarga = int(selected_empleado.split("ID ")[1].replace(")", ""))
-    
-            if st.button("Descargar CV"):
-                empleado = empleados_df[empleados_df["id"] == id_descarga]
-                if not empleado.empty and "cv_url" in empleado.columns and empleado.iloc[0]["cv_url"]:
-                    cv_url = empleado.iloc[0]["cv_url"]
-                    try:
-                        response = requests.get(cv_url)
-                        if response.status_code == 200:
-                            st.download_button(
-                                label="📄 Descargar CV",
-                                data=response.content,
-                                file_name=f"cv_{empleado.iloc[0]['nombre'].replace(' ', '_')}.pdf",
-                                mime="application/pdf"
-                            )
-                        else:
-                            st.error("No se pudo descargar el archivo. Verifica que la URL sea pública.")
-                    except Exception as e:
-                        st.error(f"Error al descargar el archivo: {e}")
-                else:
-                    st.warning("Ese empleado no tiene un CV subido.")
+        if st.button("Descargar CV"):
+            empleado = empleados_df[empleados_df["id"] == id_descarga]
+            if not empleado.empty and "cv_url" in empleado.columns:
+                cv_url = empleado.iloc[0]["cv_url"]
+                try:
+                    import requests
+                    response = requests.get(cv_url)
+                    if response.status_code == 200:
+                        st.download_button(
+                            label="📄 Descargar CV",
+                            data=response.content,
+                            file_name=f"cv_{empleado.iloc[0]['nombre'].replace(' ', '_')}.pdf",
+                            mime="application/pdf"
+                        )
+                    else:
+                        st.error("⚠️ No se pudo descargar el archivo. Verifica que la URL sea pública.")
+                except Exception as e:
+                    st.error(f"❌ Error al descargar el archivo: {e}")
+            else:
+                st.warning("⚠️ No se encontró un empleado con ese ID o no tiene CV.")
 
 
 # === PROYECTOS ===
