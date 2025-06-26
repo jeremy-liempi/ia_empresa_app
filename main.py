@@ -123,7 +123,7 @@ elif seccion == "Gestión de empleados":
     st.title("👥 Gestión de Empleados")
 
     if not df_empleados.empty:
-        st.dataframe(df_empleados, use_container_width=True)
+        st.dataframe(df_empleados, use_container_width=True, height=350)
     
     with st.expander("➕ Agregar nuevo empleado"):
         # Parte reactiva fuera del formulario
