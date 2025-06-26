@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 import uuid
 import os
+import tempfile
 
 # Leer credenciales desde Streamlit Secrets o entorno
 SUPABASE_URL = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL")
