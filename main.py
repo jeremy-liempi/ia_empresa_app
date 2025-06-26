@@ -108,9 +108,19 @@ elif seccion == "Gestión de empleados":
         fin_proyecto = None
     
         if estado_seleccionado == "En proyecto":
-            proyecto_actual = st.text_input("Proyecto actual")
-            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
-            fin_proyecto = st.date_input("Fecha fin del proyecto")
+            proyectos = obtener_proyectos()
+            nombres_proyectos = [p["nombre"] for p in proyectos]
+            proyecto_actual = st.selectbox("Proyecto actual", nombres_proyectos)
+            
+            # Obtener fechas del proyecto seleccionado
+            proyecto_info = next((p for p in proyectos if p["nombre"] == proyecto_actual), None)
+            if proyecto_info:
+                inicio_proyecto = proyecto_info.get("fecha_inicio")
+                fin_proyecto = proyecto_info.get("fecha_fin")
+            else:
+                inicio_proyecto = None
+                fin_proyecto = None
+
     
         with st.form("form_agregar"):
             nombre = st.text_input("Nombre completo")
