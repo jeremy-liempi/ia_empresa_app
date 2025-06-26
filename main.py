@@ -259,14 +259,12 @@ elif seccion == "Proyectos":
             # Aquí iría la lógica para insertar el proyecto en Supabase (a implementar en supabase_utils.py)
 
     # === EDITAR PROYECTO ===
-    st.subheader("✏️ Editar proyecto")
     if sub_proy == "Editar proyecto":
         proyectos = obtener_proyectos()
         # aquí usar st.selectbox(proyectos) y luego un formulario con guardar_proyecto o update
 
 
     # === ELIMINAR PROYECTO ===
-    st.subheader("🗑️ Eliminar proyecto")
     if sub_proy == "Eliminar proyecto":
         proyectos = obtener_proyectos()
         opciones = {p["nombre"]: p["id"] for p in proyectos}
@@ -277,7 +275,6 @@ elif seccion == "Proyectos":
 
 
     # === PROYECTOS ACTUALES ===
-    st.subheader("📂 Proyectos actuales asignados")
     if sub_proy == "Proyectos actuales asignados":
         for p in df_empleados["proyecto_actual"].dropna().unique():
             st.markdown(f"### {p}")
