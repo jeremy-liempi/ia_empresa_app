@@ -93,6 +93,12 @@ elif seccion == "Gestión de empleados":
 
     
     with st.expander("➕ Agregar nuevo empleado"):
+        from logic.bulk_generator import generar_empleados_aleatorios
+
+        if st.button("Generar 20 empleados distintos"):
+            generar_empleados_aleatorios(20, desde=51)
+            st.success("20 empleados generados.")
+
         # Parte reactiva fuera del formulario
         estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
     
@@ -105,12 +111,6 @@ elif seccion == "Gestión de empleados":
             proyecto_actual = st.text_input("Proyecto actual")
             inicio_proyecto = st.date_input("Fecha inicio del proyecto")
             fin_proyecto = st.date_input("Fecha fin del proyecto")
-
-        from logic.bulk_generator import generar_empleados_aleatorios
-
-        if st.button("Generar 20 empleados distintos"):
-            generar_empleados_aleatorios(20, desde=51)
-            st.success("20 empleados generados.")
     
         with st.form("form_agregar"):
             nombre = st.text_input("Nombre completo")
