@@ -249,14 +249,17 @@ elif seccion == "Proyectos":
                 "Selecciona trabajadores para este proyecto",
                 options=df_empleados["nombre"].tolist()
             )
-            if st.form_submit_button("Guardar proyecto"):
-                guardar_proyecto(
-                    nombre, descripcion, objetivo, duracion,
-                    ubicacion, presupuesto, fecha_inicio,
+            if st.form_submit_button("Agregar proyecto"):
+                response = guardar_proyecto(
+                    nombre, descripcion_proy, objetivo, duracion,
+                    ubicacion_proy, presupuesto_proy, fecha_inicio_proy,
                     participantes
                 )
-                st.success(f"Proyecto '{nombre}' guardado con {len(participantes)} participantes.")
-            # Aquí iría la lógica para insertar el proyecto en Supabase (a implementar en supabase_utils.py)
+                if response.status_code == 201:
+                    st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
+                else:
+                    st.error("Error al guardar el proyecto.")
+
 
     # === EDITAR PROYECTO ===
     elif sub_proy == "Editar proyecto":
