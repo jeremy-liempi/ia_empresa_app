@@ -93,9 +93,9 @@ elif seccion == "Gestión de empleados":
     
     from logic.bulk_generator import generar_empleados_aleatorios
 
-        if st.button("Generar 20 empleados distintos"):
-            generar_empleados_aleatorios(20, desde=51)
-            st.success("20 empleados generados.")
+    if st.button("Generar 20 empleados distintos"):
+        generar_empleados_aleatorios(20, desde=51)
+        st.success("20 empleados generados.")
 
     
     with st.expander("➕ Agregar nuevo empleado"):
