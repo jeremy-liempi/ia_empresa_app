@@ -270,9 +270,7 @@ elif seccion == "Proyectos":
     if sub_proy == "Editar proyecto":
         proyectos = obtener_proyectos()  # Asegúrate que esta función devuelve lista de dicts con al menos 'id' y 'nombre'
         opciones = {p["nombre"]: p["id"] for p in proyectos}
-        
-        if not opciones:
-            st.info("No hay proyectos para editar.")
+
         else:
             proyecto_sel = st.selectbox("Selecciona proyecto a editar", list(opciones.keys()))
             proyecto_id = opciones[proyecto_sel]
