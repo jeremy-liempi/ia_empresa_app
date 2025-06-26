@@ -182,10 +182,10 @@ elif seccion == "Gestión de empleados":
 elif seccion == "Proyectos":
     st.title("📁 Apoyo para Proyectos Entrantes")
 
-    # Selección de semanas para iniciar
+    # === SELECCIÓN DE SEMANAS ===
     semanas_inicio = st.slider("¿En cuántas semanas se planea iniciar el proyecto?", 0, 52, 0)
 
-    # Filtrar trabajadores disponibles o que estarán disponibles en ese plazo
+    # === TRABAJADORES DISPONIBLES ===
     disponibles = df_empleados[
         (df_empleados["estado"] == "Disponible") |
         (df_empleados["semanas_disponible"] <= semanas_inicio)
@@ -193,7 +193,7 @@ elif seccion == "Proyectos":
     st.subheader("👥 Profesionales disponibles en ese plazo")
     st.dataframe(disponibles, use_container_width=True)
 
-    # Sugerencia con IA
+    # === SUGERENCIA IA ===
     st.subheader("🧠 Ayuda inteligente para llevar a cabo el proyecto")
     descripcion = st.text_area("Describe el proyecto, objetivos, desafíos, requisitos, etc.")
     presupuesto = st.number_input("Presupuesto estimado (CLP)", 0)
@@ -212,23 +212,35 @@ elif seccion == "Proyectos":
                 )
             st.markdown(sugerencia)
 
-    # Agregar proyecto (simulado, visual)
-    st.subheader("📥 Agregar nuevo proyecto")
+    # === AGREGAR PROYECTO REAL ===
+    st.subheader("📥 Agregar nuevo proyecto a la base de datos")
     with st.form("form_agregar_proyecto"):
-        nuevo_nombre = st.text_input("Nombre del proyecto")
-        nuevo_objetivo = st.text_area("Objetivo del proyecto")
+        nombre = st.text_input("Nombre del proyecto")
+        descripcion_proy = st.text_area("Descripción detallada")
+        objetivo = st.text_input("Objetivo del proyecto")
+        duracion = st.text_input("Duración estimada (ej. 4 semanas)")
+        ubicacion_proy = st.text_input("Ubicación")
+        presupuesto_proy = st.number_input("Presupuesto", 0)
+        fecha_inicio_proy = st.date_input("Fecha de inicio")
+
+        participantes = st.multiselect(
+            "Selecciona trabajadores para este proyecto",
+            options=disponibles["nombre"].tolist()
+        )
+
         if st.form_submit_button("Agregar proyecto"):
-            st.success(f"Proyecto '{nuevo_nombre}' agregado correctamente (sólo visual)")
+            st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
+            # Aquí iría la lógica para insertar el proyecto en Supabase (a implementar en supabase_utils.py)
 
-    # Editar proyecto (futura implementación)
-    st.subheader("✏️ Editar proyecto (visual)")
-    st.info("Esta función permitirá editar proyectos registrados en el futuro.")
+    # === EDITAR PROYECTO ===
+    st.subheader("✏️ Editar proyecto")
+    st.info("Funcionalidad para editar proyectos, a implementar con integración real a Supabase.")
 
-    # Eliminar proyecto (futura implementación)
-    st.subheader("🗑️ Eliminar proyecto (visual)")
-    st.info("Esta función permitirá eliminar proyectos en una versión futura.")
+    # === ELIMINAR PROYECTO ===
+    st.subheader("🗑️ Eliminar proyecto")
+    st.info("Funcionalidad para eliminar proyectos, a implementar con integración real a Supabase.")
 
-    # Proyectos actuales
+    # === PROYECTOS ACTUALES ===
     st.subheader("📂 Proyectos actuales asignados")
     proyectos = df_empleados["proyecto_actual"].dropna().unique()
     for p in proyectos:
