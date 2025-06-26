@@ -82,10 +82,10 @@ elif seccion == "Gestión de empleados":
             fin_proyecto = None
             
             if estado_seleccionado == "En proyecto":
-            proyecto_actual = st.text_input("Proyecto actual")
-            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
-            fin_proyecto = st.date_input("Fecha fin del proyecto")
-            
+                proyecto_actual = st.text_input("Proyecto actual")
+                inicio_proyecto = st.date_input("Fecha inicio del proyecto")
+                fin_proyecto = st.date_input("Fecha fin del proyecto")
+                
             cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
     
             submit = st.form_submit_button("Subir Empleado")
