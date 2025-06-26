@@ -90,13 +90,6 @@ elif seccion == "Gestión de empleados":
 
     if not df_empleados.empty:
         st.dataframe(df_empleados, use_container_width=True)
-    from logic.bulk_generator import guardar_proyectos_desde_trabajadores
-
-    st.subheader("⚙️ Generar proyectos desde empleados")
-    if st.button("Generar proyectos automáticos desde empleados"):
-        guardar_proyectos_desde_trabajadores()
-        st.success("Proyectos generados correctamente en la base de datos.")
-
     
     with st.expander("➕ Agregar nuevo empleado"):
         # Parte reactiva fuera del formulario
