@@ -39,21 +39,35 @@ if seccion == "Dashboard":
         st.warning("No hay empleados cargados aún.")
         st.stop()
 
-    st.subheader("Horas por proyecto")
+    st.subheader("👥 Profesionales por rol")
+    if "cargo" in df_empleados.columns:
+        conteo_cargos = df_empleados["cargo"].value_counts()
+        st.bar_chart(conteo_cargos.rename_axis("Cargo").rename("Cantidad"))
+
+    st.subheader("⏳ Disponibilidad de profesionales (semanas restantes)")
+    if "semanas_disponible" in df_empleados.columns:
+        st.bar_chart(
+            df_empleados.set_index("nombre")["semanas_disponible"].rename("Semanas disponibles")
+        )
+
+    st.subheader("🕓 Horas asignadas por proyecto")
     if "proyecto_actual" in df_empleados.columns:
-        horas = df_empleados.groupby("proyecto_actual")["horas_por_semana"].sum()
+        horas = (
+            df_empleados.dropna(subset=["proyecto_actual"])
+            .groupby("proyecto_actual")["horas_por_semana"]
+            .sum()
+            .rename("Horas por semana")
+        )
         st.bar_chart(horas)
 
-    st.subheader("Profesionales por rol")
-    if "cargo" in df_empleados.columns:
-        st.bar_chart(df_empleados["cargo"].value_counts())
-
-    st.subheader("Disponibilidad en semanas")
-    st.bar_chart(df_empleados["semanas_disponible"])
-
-    st.subheader("Profesionales con menos de 2 por rol")
+    st.subheader("📉 Cargos con menos de 2 profesionales")
     faltan = df_empleados["cargo"].value_counts()
-    st.write(faltan[faltan < 2])
+    faltantes = faltan[faltan < 2]
+    if not faltantes.empty:
+        st.write(faltantes.rename("Cantidad"))
+    else:
+        st.success("No faltan profesionales por rol.")
+
 
 # === GESTIÓN DE EMPLEADOS ===
 elif seccion == "Gestión de empleados":
