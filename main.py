@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import streamlit as st
 import pandas as pd
 from datetime import date
+from datetime import timedelta
 import matplotlib.pyplot as plt
 from PIL import Image
 from dotenv import load_dotenv
@@ -25,8 +26,8 @@ from logic.supabase_utils import (
     guardar_proyecto,
     obtener_proyectos,
     eliminar_proyecto,
-    obtener_proyecto_por_id,      # <— agrégalo
-    actualizar_proyecto          # <— agrégalo
+    obtener_proyecto_por_id,      
+    actualizar_proyecto        
 )
 
 from logic.availability import calcular_semanas_disponibilidad
@@ -256,19 +257,21 @@ elif seccion == "Proyectos":
             nombre = st.text_input("Nombre del proyecto")
             descripcion = st.text_area("Descripción detallada")
             objetivo = st.text_input("Objetivo")
-            duracion = st.text_input("Duración estimada (ej. 4 semanas)")
             ubicacion = st.text_input("Ubicación")
             presupuesto = st.number_input("Presupuesto", 0)
+            fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
             fecha_inicio = st.date_input("Fecha de inicio")
+            duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, max_value=104, value=4)
             participantes = st.multiselect(
                 "Selecciona trabajadores para este proyecto",
                 options=df_empleados["nombre"].tolist()
             )
+            
             if st.form_submit_button("Agregar proyecto"):
                 response = guardar_proyecto(
-                    nombre, descripcion_proy, objetivo, duracion,
-                    ubicacion_proy, presupuesto_proy, fecha_inicio_proy,
-                    participantes
+                    nombre, descripcion, objetivo, f"{duracion_semanas} semanas",
+                    ubicacion, presupuesto, fecha_inicio,
+                    fecha_fin, participantes
                 )
                 if response.status_code == 201:
                     st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
