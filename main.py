@@ -246,9 +246,9 @@ elif seccion == "Gestión de empleados":
             st.success(f"Empleado con ID {id_del} eliminado.")
 
     with st.expander("📥 Descargar CV de un Empleado"):
+        empleados_df = obtener_trabajadores()
         id_descarga = st.number_input("ID del empleado", min_value=1, step=1)
         if st.button("Descargar CV"):
-            empleados_df = obtener_trabajadores()
             empleado = empleados_df[empleados_df["id"] == id_descarga]
             if not empleado.empty and "cv_url" in empleado.columns:
                 cv_url = empleado.iloc[0]["cv_url"]
