@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 import random
 from logic.supabase_utils import subir_trabajador
+from logic.supabase_utils import obtener_trabajadores, guardar_proyecto
+
 
 def generar_empleados_aleatorios(cantidad, desde=51):
     nombres = [f"Empleado{desde + i}" for i in range(cantidad)]
