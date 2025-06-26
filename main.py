@@ -219,8 +219,9 @@ elif seccion == "Gestión de empleados":
             area = st.text_input("Área funcional", value=emp["area"])
             años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
             horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
-            cv_nuevo = st.file_uploader("Actualizar CV (opcional, reemplaza el anterior)", type=["pdf"])
-
+            cv_label = "Actualizar CV (reemplaza el anterior)" if emp.get("cv_url") else "Subir CV"
+            cv_nuevo = st.file_uploader(cv_label, type=["pdf"])
+            
             submit_ed = st.form_submit_button("Guardar cambios")
             
             if submit_ed:
