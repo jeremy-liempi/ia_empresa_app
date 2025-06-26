@@ -90,15 +90,15 @@ elif seccion == "Gestión de empleados":
 
     if not df_empleados.empty:
         st.dataframe(df_empleados, use_container_width=True)
-
     
-    with st.expander("➕ Agregar nuevo empleado"):
-        from logic.bulk_generator import generar_empleados_aleatorios
+    from logic.bulk_generator import generar_empleados_aleatorios
 
         if st.button("Generar 20 empleados distintos"):
             generar_empleados_aleatorios(20, desde=51)
             st.success("20 empleados generados.")
 
+    
+    with st.expander("➕ Agregar nuevo empleado"):
         # Parte reactiva fuera del formulario
         estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
     
