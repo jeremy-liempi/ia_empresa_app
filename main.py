@@ -245,18 +245,16 @@ elif seccion == "Gestión de empleados":
             eliminar_trabajador(id_del)
             st.success(f"Empleado con ID {id_del} eliminado.")
 
-    with st.expander("📄 Descargar CV de un Empleado"):
-        id_descarga = st.number_input("ID del empleado a descargar", min_value=1, step=1)
+    with st.expander("📥 Descargar CV de un Empleado"):
+        id_descarga = st.number_input("ID del empleado", min_value=1, step=1)
         if st.button("Descargar CV"):
             empleado = empleados_df[empleados_df["id"] == id_descarga]
             if not empleado.empty and "cv_url" in empleado.columns:
-                url = empleado.iloc[0]["cv_url"]
-                if pd.notnull(url) and url != "":
-                    st.markdown(f"[Haz clic aquí para descargar el CV](%s)" % url)
-                else:
-                    st.warning("Este empleado no tiene un CV cargado.")
+                cv_url = empleado.iloc[0]["cv_url"]
+                st.markdown(f"[Descargar CV]({cv_url})", unsafe_allow_html=True)
             else:
-                st.error("No se encontró un empleado con ese ID.")
+                st.warning("No se encontró un empleado con ese ID o no tiene CV.")
+
 
 # === PROYECTOS ===
 elif seccion == "Proyectos":
