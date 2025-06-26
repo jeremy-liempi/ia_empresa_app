@@ -322,8 +322,15 @@ elif seccion == "Proyectos":
 
     # === PROYECTOS ACTUALES ===
     if sub_proy == "Proyectos actuales asignados":
-        for p in df_empleados["proyecto_actual"].dropna().unique():
-            st.markdown(f"### {p}")
-            dfp = df_empleados[df_empleados["proyecto_actual"] == p]
-            st.dataframe(dfp[["nombre","cargo","horas_por_semana","semanas_disponible"]])
+        proyectos = obtener_proyectos()
+        for p in proyectos:
+            st.markdown(f"### {p['nombre']}")
+            st.write(f"**Descripción:** {p.get('descripcion', '')}")
+            st.write(f"**Objetivo:** {p.get('objetivo', '')}")
+            st.write(f"**Duración:** {p.get('duracion', '')}")
+            st.write(f"**Ubicación:** {p.get('ubicacion', '')}")
+            st.write(f"**Presupuesto:** {p.get('presupuesto', '')}")
+            st.write(f"**Fecha de inicio:** {p.get('fecha_inicio', '')}")
+            st.write(f"**Participantes:** {', '.join(p.get('participantes', []))}")
+
             
