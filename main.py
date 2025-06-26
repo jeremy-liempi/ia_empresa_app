@@ -115,6 +115,18 @@ elif seccion == "Gestión de empleados":
         id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
         emp = df_editar[df_editar["id"] == id_edit].iloc[0]
 
+        estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
+    
+        # Si está en proyecto, pedir estos datos también fuera
+        proyecto_actual = None
+        inicio_proyecto = None
+        fin_proyecto = None
+    
+        if estado_seleccionado == "En proyecto":
+            proyecto_actual = st.text_input("Proyecto actual")
+            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
+            fin_proyecto = st.date_input("Fecha fin del proyecto")
+
         with st.form("form_editar"):
             # Pre-llenar campos con los valores actuales
             nombre = st.text_input("Nombre completo", value=emp["nombre"])
@@ -123,17 +135,7 @@ elif seccion == "Gestión de empleados":
             area = st.text_input("Área funcional", value=emp["area"])
             años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
             horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
-            estado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], index=["Disponible","En proyecto","No disponible"].index(emp["estado"]))
-            
-            # Si está en proyecto, también permitir editar proyecto y fechas
-            proyecto_actual = emp.get("proyecto_actual") or ""
-            inicio_proyecto = pd.to_datetime(emp["inicio_proyecto"]) if emp["inicio_proyecto"] else None
-            fin_proyecto = pd.to_datetime(emp["fin_proyecto"]) if emp["fin_proyecto"] else None
-            if estado == "En proyecto":
-                proyecto_actual = st.text_input("Proyecto actual", value=proyecto_actual)
-                inicio_proyecto = st.date_input("Inicio proyecto", value=inicio_proyecto or date.today())
-                fin_proyecto    = st.date_input("Fin proyecto",    value=fin_proyecto    or date.today())
-
+        
             submit_ed = st.form_submit_button("Guardar cambios")
             if submit_ed:
                 datos_upd = {
