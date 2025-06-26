@@ -274,9 +274,9 @@ elif seccion == "Proyectos":
             fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
             participantes = st.multiselect(
                 "Selecciona trabajadores para este proyecto",
-                options=df_empleados["nombre"].tolist()
+                options=df_empleados[df_empleados["estado"] == "Disponible"]["nombre"].tolist()
             )
-            
+           
             if st.form_submit_button("Agregar proyecto"):
                 response = guardar_proyecto(
                     nombre, descripcion, objetivo, f"{duracion_semanas} semanas",
