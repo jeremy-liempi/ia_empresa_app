@@ -65,11 +65,6 @@ elif seccion == "Gestión de empleados":
     with st.expander("➕ Agregar nuevo empleado"):
         # Parte reactiva fuera del formulario
     
-        if estado_seleccionado == "En proyecto":
-            proyecto_actual = st.text_input("Proyecto actual")
-            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
-            fin_proyecto = st.date_input("Fecha fin del proyecto")
-    
         with st.form("form_agregar"):
             nombre = st.text_input("Nombre completo")
             rut = st.text_input("RUT")
@@ -85,6 +80,11 @@ elif seccion == "Gestión de empleados":
             proyecto_actual = None
             inicio_proyecto = None
             fin_proyecto = None
+            
+            if estado_seleccionado == "En proyecto":
+            proyecto_actual = st.text_input("Proyecto actual")
+            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
+            fin_proyecto = st.date_input("Fecha fin del proyecto")
             
             cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
     
