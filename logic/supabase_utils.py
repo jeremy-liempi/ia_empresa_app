@@ -64,11 +64,8 @@ def actualizar_trabajador(id_empleado: int, datos: dict):
 
 def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
     try:
-        # Si fecha_inicio es tipo string, no llames a isoformat
-        if hasattr(fecha_inicio, "isoformat"):
-            fecha_inicio_str = fecha_inicio.isoformat()
-        else:
-            fecha_inicio_str = fecha_inicio  # ya es string
+        if isinstance(participantes, list):
+            participantes = [p.strip() for p in participantes if p.strip()]
 
         supabase.table("proyectos").insert({
             "nombre": nombre,
@@ -77,25 +74,39 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
             "duracion": duracion,
             "ubicacion": ubicacion,
             "presupuesto": presupuesto,
-            "fecha_inicio": fecha_inicio_str,
+            "fecha_inicio": fecha_inicio.isoformat() if hasattr(fecha_inicio, "isoformat") else fecha_inicio,
             "participantes": participantes
         }).execute()
+
+        # Actualizar trabajadores asignados automáticamente
+        for nombre_trabajador in participantes:
+            trabajador = supabase.table("trabajadores").select("id").eq("nombre", nombre_trabajador).execute()
+            if trabajador.data:
+                id_trabajador = trabajador.data[0]["id"]
+                supabase.table("trabajadores").update({
+                    "estado": "En proyecto",
+                    "proyecto_actual": nombre,
+                    "inicio_proyecto": fecha_inicio.isoformat() if hasattr(fecha_inicio, "isoformat") else fecha_inicio,
+                    "fin_proyecto": None  # Se puede actualizar luego según lógica adicional
+                }).eq("id", id_trabajador).execute()
+
     except Exception as e:
         st.error(f"Error al guardar proyecto: {e}")
 
-
 def obtener_proyectos():
     try:
-        return supabase.table("proyectos").select("*").execute().data
+        response = supabase.table("proyectos").select("*").execute()
+        return response.data if response.data else []
     except Exception as e:
         st.error(f"Error al obtener proyectos: {e}")
         return []
 
 def obtener_proyecto_por_id(id_proyecto):
     try:
-        return supabase.table("proyectos").select("*").eq("id", id_proyecto).single().execute().data
+        response = supabase.table("proyectos").select("*").eq("id", id_proyecto).single().execute()
+        return response.data if response.data else None
     except Exception as e:
-        st.error(f"Error al obtener proyecto por ID: {e}")
+        st.error(f"Error al obtener proyecto: {e}")
         return None
 
 def actualizar_proyecto(id_proyecto, datos_actualizados):
