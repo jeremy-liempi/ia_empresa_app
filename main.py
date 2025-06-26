@@ -45,6 +45,32 @@ df_empleados = obtener_trabajadores()
 if not df_empleados.empty:
     df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
 
+# === CLAVE DE ACCESO ===
+
+# Solicitar clave de acceso
+PASSWORD = st.secrets["APP_PASSWORD"]
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    st.image("assets/logo.png", width=200)
+    st.title("Bienvenido a MyMatch")
+
+    st.markdown("""
+    Esta app permite organizar, visualizar y gestionar los recursos humanos de tu empresa de forma inteligente.
+    Carga currículums, analiza disponibilidad, sugiere equipos y mucho más.
+    """)
+
+    clave = st.text_input("🔐 Ingrese la clave de acceso:", type="password")
+    if st.button("Ingresar"):
+        if clave == PASSWORD:
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("❌ Clave incorrecta.")
+    st.stop()
+
 # === DASHBOARD ===
 
 if seccion == "Dashboard":
