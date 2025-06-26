@@ -64,12 +64,6 @@ elif seccion == "Gestión de empleados":
 
     with st.expander("➕ Agregar nuevo empleado"):
         # Parte reactiva fuera del formulario
-        estado_seleccionado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
-    
-        # Si está en proyecto, pedir estos datos también fuera
-        proyecto_actual = None
-        inicio_proyecto = None
-        fin_proyecto = None
     
         if estado_seleccionado == "En proyecto":
             proyecto_actual = st.text_input("Proyecto actual")
@@ -85,6 +79,14 @@ elif seccion == "Gestión de empleados":
             años = st.number_input("Años de experiencia", min_value=0, max_value=50)
             horas = st.number_input("Horas disponibles por semana", min_value=0, max_value=168)
             skills = st.text_input("Skills (separadas por comas)")
+         
+        estado_seleccionado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
+    
+        # Si está en proyecto, pedir estos datos también fuera
+        proyecto_actual = None
+        inicio_proyecto = None
+        fin_proyecto = None
+            
             cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
     
             submit = st.form_submit_button("Subir Empleado")
