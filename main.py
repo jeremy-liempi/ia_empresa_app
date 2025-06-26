@@ -76,9 +76,15 @@ elif seccion == "Gestión de empleados":
     
         
             if estado == "En proyecto":
+                datos = {
+                    "proyecto_actual": proyecto_actual if estado == "En proyecto" else None,
+                    "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
+                    "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
+                }
                 proyecto_actual = st.text_input("Proyecto actual")
                 inicio_proyecto = st.date_input("Inicio del proyecto")
                 fin_proyecto = st.date_input("Fin del proyecto")
+                
     
             cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
     
@@ -92,10 +98,6 @@ elif seccion == "Gestión de empleados":
                     "años_experiencia": años,
                     "horas_por_semana": horas,
                     "skills": [s.strip() for s in skills.split(",") if s.strip()],
-                    "estado": estado,
-                    "proyecto_actual": proyecto_actual if estado == "En proyecto" else None,
-                    "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
-                    "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
                 }
         
                 subir_trabajador(datos, cv if cv else None)
