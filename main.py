@@ -313,7 +313,13 @@ elif seccion == "Proyectos":
                 ubicacion = st.text_input("Ubicación", value=proyecto_data.get("ubicacion", ""))
                 presupuesto = st.number_input("Presupuesto", min_value=0, value=proyecto_data.get("presupuesto", 0))
                 fecha_inicio = st.date_input("Fecha de inicio", value=proyecto_data.get("fecha_inicio", date.today()))
-                    
+                duracion_semanas = st.number_input(
+                    "Duración estimada (en semanas)",
+                    min_value=1,
+                    value=(pd.to_datetime(proyecto_data["fecha_fin"]) - pd.to_datetime(proyecto_data["fecha_inicio"])).days // 7
+                )
+                
+                fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)    
                 # Para los participantes: si tienes una lista de nombres guardados, usar multiselect con los que ya están
                 participantes_actuales = proyecto_data.get("participantes", [])
                 todos_trabajadores = [e["nombre"] for e in obtener_trabajadores().to_dict(orient="records")]
@@ -326,10 +332,11 @@ elif seccion == "Proyectos":
                         "nombre": nombre,
                         "descripcion": descripcion,
                         "objetivo": objetivo,
-                        "duracion": duracion,
                         "ubicacion": ubicacion,
                         "presupuesto": presupuesto,
                         "fecha_inicio": fecha_inicio.isoformat(),
+                        "fecha_fin": fecha_fin.isoformat(),
+                        "duracion": duracion_semanas,
                         "participantes": participantes,
                     }
                     # Aquí la función para actualizar proyecto en la base de datos
