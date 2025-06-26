@@ -309,12 +309,13 @@ elif seccion == "Proyectos":
 
         # === TRABAJADORES DISPONIBLES ===
         disponibles = df_empleados[
-            (df_empleados["estado"] != "No disponible") &  # Excluye a los "No disponible"
+            (df_empleados["estado"] != "No disponible") &
             (
                 (df_empleados["estado"] == "Disponible") |
-                (df_empleados["semanas_disponible"] <= semanas_inicio)
+                ((df_empleados["estado"] == "En proyecto") & (df_empleados["semanas_disponible"] > 0) & (df_empleados["semanas_disponible"] <= semanas_inicio))
             )
         ]
+
 
         st.subheader("👥 Profesionales disponibles en ese plazo")
         st.dataframe(disponibles, use_container_width=True, height=270)
