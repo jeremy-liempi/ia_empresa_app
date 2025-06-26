@@ -76,39 +76,39 @@ elif seccion == "Gestión de empleados":
             skills = st.text_input("Skills (separadas por comas)")
             estado_seleccionado = st.selectbox("Estado", ["Disponible", "En proyecto", "No disponible"], key="estado_outside")
     
-        # Si está en proyecto, pedir estos datos también fuera
-        proyecto_actual = None
-        inicio_proyecto = None
-        fin_proyecto = None
+            # Si está en proyecto, pedir estos datos también fuera
+            proyecto_actual = None
+            inicio_proyecto = None
+            fin_proyecto = None
             
-        if estado_seleccionado == "En proyecto":
-            proyecto_actual = st.text_input("Proyecto actual")
-            inicio_proyecto = st.date_input("Fecha inicio del proyecto")
-            fin_proyecto = st.date_input("Fecha fin del proyecto")
+            if estado_seleccionado == "En proyecto":
+                proyecto_actual = st.text_input("Proyecto actual")
+                inicio_proyecto = st.date_input("Fecha inicio del proyecto")
+                fin_proyecto = st.date_input("Fecha fin del proyecto")
                 
-            cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+                cv = st.file_uploader("Cargar CV (PDF)", type=["pdf"])
+        
+                submit = st.form_submit_button("Subir Empleado")
+        
+                if submit:
+                    datos = {
+                        "nombre": nombre,
+                        "rut": rut,
+                        "correo": correo,
+                        "cargo": cargo,
+                        "area": area,
+                        "años_experiencia": años,
+                        "horas_por_semana": horas,
+                        "skills": [s.strip() for s in skills.split(",") if s.strip()],
+                        "estado": estado_seleccionado,
+                        "proyecto_actual": proyecto_actual if estado_seleccionado == "En proyecto" else None,
+                        "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
+                        "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
+                    }
+        
+                    subir_trabajador(datos, cv if cv else None)
+                    st.success("Empleado agregado correctamente.")
     
-            submit = st.form_submit_button("Subir Empleado")
-    
-            if submit:
-                datos = {
-                    "nombre": nombre,
-                    "rut": rut,
-                    "correo": correo,
-                    "cargo": cargo,
-                    "area": area,
-                    "años_experiencia": años,
-                    "horas_por_semana": horas,
-                    "skills": [s.strip() for s in skills.split(",") if s.strip()],
-                    "estado": estado_seleccionado,
-                    "proyecto_actual": proyecto_actual if estado_seleccionado == "En proyecto" else None,
-                    "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
-                    "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
-                }
-    
-                subir_trabajador(datos, cv if cv else None)
-                st.success("Empleado agregado correctamente.")
-
 
     with st.expander("🗑️ Eliminar empleado"):
         id_del = st.number_input("ID a eliminar", min_value=1, step=1)
