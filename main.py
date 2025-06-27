@@ -34,18 +34,6 @@ from logic.supabase_utils import (
 from logic.availability import calcular_semanas_disponibilidad
 from logic.ai_utils import sugerir_metodologia_y_equipo
 
-# Configuración de la app
-st.set_page_config(page_title="MyMatch", layout="wide", page_icon="assets/logo.png")
-st.sidebar.image("assets/logo.png", width=150)
-seccion = st.sidebar.selectbox("Navegación", ["Dashboard", "Gestión de empleados", "Proyectos"])
-
-# Obtener empleados
-df_empleados = obtener_trabajadores()
-
-# Calcular disponibilidad
-if not df_empleados.empty:
-    df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
-
 # === CLAVE DE ACCESO ===
 
 # Solicitar clave de acceso
@@ -71,6 +59,19 @@ if not st.session_state["authenticated"]:
         else:
             st.error("❌ Clave incorrecta.")
     st.stop()
+
+# Configuración de la app
+st.set_page_config(page_title="MyMatch", layout="wide", page_icon="assets/logo.png")
+st.sidebar.image("assets/logo.png", width=150)
+seccion = st.sidebar.selectbox("Navegación", ["Dashboard", "Gestión de empleados", "Proyectos"])
+
+# Obtener empleados
+df_empleados = obtener_trabajadores()
+
+# Calcular disponibilidad
+if not df_empleados.empty:
+    df_empleados = calcular_semanas_disponibilidad(df_empleados, date.today())
+
 
 # === DASHBOARD ===
 
