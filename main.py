@@ -210,7 +210,7 @@ elif seccion == "Gestión de empleados":
                 skills = st.text_input("Skills (separadas por comas)", value=skills_txt)
 
                 submit_int = st.form_submit_button("Agregar empleado inteligente")
-               if submit_int:
+                if submit_int:
                     datos = {
                         "nombre": nombre,
                         "rut": rut,
