@@ -52,18 +52,22 @@ def extraer_datos_cv(cv_file) -> dict:
 
     # 2) Crear prompt para OpenAI
     prompt = (
-        "Extrae del siguiente texto de CV estos campos en JSON:\n"
-        "- nombre completo\n"
-        "- RUT\n"
-        "- correo institucional\n"
-        "- cargo\n"
-        "- área funcional\n"
-        "- años de experiencia (número)\n"
-        "- horas disponibles por semana (número)\n"
-        "- habilidades (lista de strings)\n\n"
-        f"Texto del CV:\n```{texto}```"
+        "Analiza el siguiente currículum vitae y extrae los datos del trabajador en formato JSON. "
+        "Asegúrate de inferir los valores aunque no estén explícitos. Si algo no se menciona, usa valores razonables.\n\n"
+        "Formato esperado:\n"
+        "{\n"
+        '  "nombre": "Nombre completo",\n'
+        '  "rut": "RUT",\n'
+        '  "correo": "Correo electrónico",\n'
+        '  "cargo": "Título o cargo principal",\n'
+        '  "area": "Área funcional (ej. Ingeniería, Administración, etc.)",\n'
+        '  "años_experiencia": número,\n'
+        '  "horas_por_semana": número (si no se menciona, usar 40),\n'
+        '  "skills": ["Lista", "de", "habilidades"]\n'
+        "}\n\n"
+        f"Texto del CV:\n```{texto[:4000]}```"
     )
-
+    
     try:
         resp = oai.chat.completions.create(
             model="gpt-4",
