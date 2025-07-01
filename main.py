@@ -32,7 +32,11 @@ from logic.supabase_utils import (
 )
 
 from logic.availability import calcular_semanas_disponibilidad
-from logic.ai_utils import sugerir_metodologia_y_equipo
+
+from logic.ai_utils import (
+    sugerir_metodologia_y_equipo,
+    extraer_datos_cv
+)
 
 # === CLAVE DE ACCESO ===
 
