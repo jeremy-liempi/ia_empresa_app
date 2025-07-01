@@ -1,6 +1,9 @@
 # logic/ai_utils.py
 import streamlit as st
 from openai import OpenAI
+import io
+import json
+from PyPDF2 import PdfReader
 
 # Crear cliente OpenAI con API Key desde secretos
 oai = OpenAI(api_key=st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None)
@@ -31,3 +34,57 @@ def sugerir_metodologia_y_equipo(descripcion: str, ubicacion: str, presupuesto: 
         return response.choices[0].message.content
     except Exception as e:
         return f"Error al consultar IA: {e}"
+
+
+def extraer_datos_cv(cv_file) -> dict:
+    """
+    Extrae texto de un PDF y pide a la IA que devuelva
+    nombre, RUT, correo, cargo, área, años de experiencia,
+    horas disponibles y skills en JSON.
+    """
+    # 1) Leer todo el texto del PDF
+    cv_bytes = cv_file.read()
+    reader = PdfReader(io.BytesIO(cv_bytes))
+    texto = "\n".join([
+        page.extract_text() or ""
+        for page in reader.pages
+    ])
+
+    # 2) Crear prompt para OpenAI
+    prompt = (
+        "Extrae del siguiente texto de CV estos campos en JSON:\n"
+        "- nombre completo\n"
+        "- RUT\n"
+        "- correo institucional\n"
+        "- cargo\n"
+        "- área funcional\n"
+        "- años de experiencia (número)\n"
+        "- horas disponibles por semana (número)\n"
+        "- habilidades (lista de strings)\n\n"
+        f"Texto del CV:\n```{texto}```"
+    )
+
+    try:
+        resp = oai.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Eres un asistente que convierte CVs a datos estructurados."},
+                {"role": "user",   "content": prompt}
+            ],
+            temperature=0
+        )
+        content = resp.choices[0].message.content.strip()
+        return json.loads(content)
+    except Exception as e:
+        # Si falla el parsing o la llamada, devolvemos un dict vacío para corrección manual
+        st.error(f"IA no pudo extraer datos: {e}")
+        return {
+            "nombre": "",
+            "rut": "",
+            "correo": "",
+            "cargo": "",
+            "area": "",
+            "años_experiencia": 0,
+            "horas_por_semana": 0,
+            "skills": []
+        }
