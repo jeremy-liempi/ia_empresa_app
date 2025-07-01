@@ -50,7 +50,7 @@ def subir_trabajador(datos: dict, cv_file):
 
             # Obtener URL pública
             public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket)
-            datos["cv_url"] = public_url.get("publicURL")
+            datos["cv_url"] = public_url
 
             # Eliminar el archivo temporal
             os.remove(tmp_path)
