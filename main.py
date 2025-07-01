@@ -183,6 +183,43 @@ elif seccion == "Gestión de empleados":
                 st.success("Empleado agregado correctamente.")
 
 
+    # Expander “🧠 Agregar empleado inteligente”
+    with st.expander("🧠 Agregar empleado inteligente"):
+        st.write("Sube sólo el CV y deja que la IA extraiga los datos…")
+        cv_file = st.file_uploader("Sube el CV (PDF)", type=["pdf"])
+        if cv_file:
+            # Llamas a extraer_datos_cv(cv_file)
+            datos_extraidos = extraer_datos_cv(cv_file)
+
+            st.markdown("#### Revisa y corrige antes de guardar")
+            with st.form("form_inteligente"):
+                nombre = st.text_input("Nombre completo", value=datos_extraidos.get("nombre",""))
+                rut    = st.text_input("RUT", value=datos_extraidos.get("rut",""))
+                correo = st.text_input("Correo institucional", value=datos_extraidos.get("correo",""))
+                cargo  = st.text_input("Cargo", value=datos_extraidos.get("cargo",""))
+                area   = st.text_input("Área funcional", value=datos_extraidos.get("area",""))
+                años   = st.number_input("Años de experiencia", min_value=0, max_value=50,
+                                         value=int(datos_extraidos.get("años_experiencia",0)))
+                horas  = st.number_input("Horas/semana", min_value=0, max_value=168,
+                                         value=int(datos_extraidos.get("horas_por_semana",0)))
+                skills_txt = ",".join(datos_extraidos.get("skills",[]))
+                skills = st.text_input("Skills (separadas por comas)", value=skills_txt)
+
+                submit_int = st.form_submit_button("Agregar empleado inteligente")
+                if submit_int:
+                    datos = {
+                        "nombre": nombre,
+                        "rut": rut,
+                        "correo": correo,
+                        "cargo": cargo,
+                        "area": area,
+                        "años_experiencia": años,
+                        "horas_por_semana": horas,
+                        "skills": [s.strip() for s in skills.split(",") if s.strip()]
+                    }
+                    subir_trabajador(datos, cv_file)
+                    st.success("Empleado agregado con éxito.")
+                    
     with st.expander("✏️ Editar informacion de Empleado"):
         # Traer datos y seleccionar registro
         df_editar = obtener_trabajadores()
