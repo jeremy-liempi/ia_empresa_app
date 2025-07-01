@@ -16,7 +16,7 @@ def sugerir_metodologia_y_equipo(descripcion: str, ubicacion: str, presupuesto: 
         f"Somos una consultora de proyectos mineros. Lleva a cabo un plan óptimo para este proyecto:\n"
         f"Descripción: {descripcion}\n"
         f"Ubicación: {ubicacion}\n"
-        f"Presupuesto: {presupuesto} CLP\n"
+        f"Presupuesto: {presupuesto} USD\n"
         f"Profesionales disponibles: {[e['nombre'] for e in empleados]}\n\n"
         "Resume la metodología, fases, equipo ideal y plan de ejecución de forma clara y profesional."
     )
