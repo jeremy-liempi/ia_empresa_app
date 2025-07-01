@@ -367,7 +367,7 @@ elif seccion == "Proyectos":
         # === SUGERENCIA IA ===
         st.subheader("🧠 Ayuda inteligente para llevar a cabo el proyecto")
         descripcion = st.text_area("Describe el proyecto, objetivos, desafíos, requisitos, etc.")
-        presupuesto = st.number_input("Presupuesto estimado (CLP)", 0)
+        presupuesto = st.number_input("Presupuesto estimado (USD)", 0)
         ubicacion = st.text_input("Ubicación (ciudad o región)")
 
         if st.button("Sugerir solución óptima"):
@@ -391,7 +391,7 @@ elif seccion == "Proyectos":
             descripcion = st.text_area("Descripción detallada")
             objetivo = st.text_input("Objetivo")
             ubicacion = st.text_input("Ubicación")
-            presupuesto = st.number_input("Presupuesto", 0)
+            presupuesto = st.number_input("Presupuesto (USD)", 0)
             fecha_inicio = st.date_input("Fecha de inicio")
             duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, max_value=104, value=4)
             fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
@@ -434,7 +434,7 @@ elif seccion == "Proyectos":
                 descripcion = st.text_area("Descripción detallada", value=proyecto_data["descripcion"])
                 objetivo = st.text_input("Objetivo", value=proyecto_data["objetivo"])
                 ubicacion = st.text_input("Ubicación", value=proyecto_data["ubicacion"])
-                presupuesto = st.number_input("Presupuesto", min_value=0, value=int(proyecto_data["presupuesto"]))
+                presupuesto = st.number_input("Presupuesto (USD)", min_value=0, value=int(proyecto_data["presupuesto"]))
                 fecha_inicio = st.date_input("Fecha de inicio", value=pd.to_datetime(proyecto_data["fecha_inicio"]))
                 duracion_semanas = st.number_input("Duración estimada (semanas)", min_value=1, value=duracion_inicial)
                 fecha_fin = fecha_inicio + timedelta(weeks=duracion_semanas)
