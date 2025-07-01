@@ -210,7 +210,7 @@ elif seccion == "Gestión de empleados":
                 skills = st.text_input("Skills (separadas por comas)", value=skills_txt)
 
                 submit_int = st.form_submit_button("Agregar empleado inteligente")
-                if submit_int:
+               if submit_int:
                     datos = {
                         "nombre": nombre,
                         "rut": rut,
@@ -221,8 +221,10 @@ elif seccion == "Gestión de empleados":
                         "horas_por_semana": horas,
                         "skills": [s.strip() for s in skills.split(",") if s.strip()]
                     }
+                    cv_file.seek(0)
                     subir_trabajador(datos, cv_file)
                     st.success("Empleado agregado con éxito.")
+                   
                     
     with st.expander("✏️ Editar informacion de Empleado"):
         # Traer datos y seleccionar registro
