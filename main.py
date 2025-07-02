@@ -226,7 +226,7 @@ elif seccion == "Gestión de empleados":
                     st.success("Empleado agregado con éxito.")
                    
                     
-    with st.expander("✏️ Editar informacion de Empleado"):
+    with st.expander("✏️ Editar informacion de empleado"):
         # Traer datos y seleccionar registro
         df_editar = obtener_trabajadores()
         id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
@@ -300,8 +300,6 @@ elif seccion == "Gestión de empleados":
             
                 actualizar_trabajador(id_edit, datos_upd)
                 st.success("Empleado actualizado correctamente.")
-
-
             
         
     with st.expander("🗑️ Eliminar empleado"):
@@ -309,8 +307,9 @@ elif seccion == "Gestión de empleados":
         if st.button("Eliminar"):
             eliminar_trabajador(id_del)
             st.success(f"Empleado con ID {id_del} eliminado.")
+            
 
-    with st.expander("📥 Descargar CV de un Empleado"):
+    with st.expander("📥 Descargar CV de un empleado"):
         empleados_df = obtener_trabajadores()
         id_descarga = st.number_input("🔎 Ingresa el ID del empleado", min_value=1, step=1)
     
