@@ -1,45 +1,85 @@
+# logic/bulk_generator.py
+
 from datetime import date, timedelta
 import random
-from logic.supabase_utils import subir_trabajador
-from logic.supabase_utils import obtener_trabajadores, guardar_proyecto
+from logic.supabase_utils import subir_trabajador, guardar_proyecto, obtener_trabajadores
 
+# Listas de ejemplo más realistas
+nombres = [
+    "Ana Gómez", "Carlos Torres", "Lucía Rojas", "Pedro Vidal", "Sofía Herrera",
+    "Javier Castro", "Camila Fuentes", "Diego Sánchez", "Valentina Bravo", "Tomás Espinoza",
+    "María Pérez", "Fernando Díaz", "Paula Muñoz", "Andrés León", "Isabel Cruz",
+    "Mateo Silva", "Natalia Vargas", "Sebastián Reyes", "Zoe Contreras", "Gabriel Soto",
+    "Camila Rojas", "Ignacio Molina", "Martina Gutiérrez", "Vicente Paredes", "Renata Aguirre",
+    "Diego Herrera", "Fernanda Castillo", "Alejandro Navarro", "Antonia Salas", "Ricardo López"
+]
+roles = ["Ingeniero Civil", "Analista Financiero", "Administrador de Proyectos",
+         "Técnico Mecánico", "Diseñador Gráfico"]
+areas = ["Ingeniería", "Finanzas", "Operaciones", "Marketing", "Recursos Humanos"]
+estudios_lista = ["Ingeniería Civil", "Ingeniería Comercial", "Técnico en Mecánica",
+                  "Diseño Gráfico", "Licenciatura en Economía"]
+skills_pool = ["Python", "Excel", "AutoCAD", "Gestión de Proyectos", "SQL", "Power BI"]
 
-def generar_empleados_aleatorios(cantidad, desde=51):
-    nombres = [f"Empleado{desde + i}" for i in range(cantidad)]
-    roles = ["Analista", "Desarrollador", "Diseñador", "PM", "QA"]
-    areas = ["TI", "Marketing", "Finanzas", "Recursos Humanos", "Operaciones"]
-
+def generar_empleados_aleatorios():
     for nombre in nombres:
         datos = {
             "nombre": nombre,
-            "rut": f"1{random.randint(1000000, 9999999)}-{random.randint(0,9)}",
-            "correo": f"{nombre.lower()}@empresa.com",
+            "rut": f"{random.randint(10_000_000, 25_000_000)}-{random.randint(0,9)}",
+            "correo": f"{nombre.lower().replace(' ','.')}@empresa.com",
             "cargo": random.choice(roles),
             "area": random.choice(areas),
-            "años_experiencia": random.randint(1, 15),
+            "años_experiencia": random.randint(1, 20),
             "horas_por_semana": random.choice([20, 30, 40]),
-            "skills": ["Python", "Liderazgo", "SQL"],
+            "skills": random.sample(skills_pool, k=3),
             "estado": "Disponible",
             "proyecto_actual": None,
             "inicio_proyecto": None,
-            "fin_proyecto": None
+            "fin_proyecto": None,
+            "estudios": random.choice(estudios_lista)
         }
-
         subir_trabajador(datos, None)
 
-def guardar_proyectos_desde_trabajadores():
-    df = obtener_trabajadores()
-    proyectos = df["proyecto_actual"].dropna().unique()
-    for p in proyectos:
-        participantes = df[df["proyecto_actual"] == p]["nombre"].tolist()
-        proyecto = {
-            "nombre": p,
-            "descripcion": f"Proyecto generado automáticamente para {p}",
-            "objetivo": "Objetivo automático",
-            "duracion": "Indefinida",
-            "ubicacion": "No especificada",
-            "presupuesto": 0,
-            "fecha_inicio": "2025-01-01",
-            "participantes": participantes,
+def generar_proyectos_aleatorios():
+    # Nombres y datos de 3 proyectos
+    proyectos_info = [
+        {
+            "nombre": "Optimización Planta Norte",
+            "descripcion": "Mejora de procesos y reducción de costos en Planta Norte.",
+            "objetivo": "Reducir un 15% los tiempos de producción.",
+            "duracion": "12 semanas",
+            "ubicacion": "Antofagasta",
+            "presupuesto": random.randint(100_000, 300_000),  # USD
+            "fecha_inicio": date(2025,7,1).isoformat()
+        },
+        {
+            "nombre": "Digitalización Bodega Central",
+            "descripcion": "Implementación de sistema ERP y BI en bodega.",
+            "objetivo": "Automatizar inventario y reportes.",
+            "duracion": "8 semanas",
+            "ubicacion": "Santiago",
+            "presupuesto": random.randint(50_000, 120_000),
+            "fecha_inicio": date(2025,8,1).isoformat()
+        },
+        {
+            "nombre": "Lanzamiento Nuevo Producto",
+            "descripcion": "Campaña de marketing y logística para nuevo producto.",
+            "objetivo": "Alcanzar 10.000 unidades vendidas en primer mes.",
+            "duracion": "10 semanas",
+            "ubicacion": "Concepción",
+            "presupuesto": random.randint(80_000, 200_000),
+            "fecha_inicio": date(2025,9,1).isoformat()
         }
-        guardar_proyecto(**proyecto)
+    ]
+
+    # Obtener lista de empleados actuales
+    df = obtener_trabajadores()
+    nombres_disp = df[df["estado"]=="Disponible"]["nombre"].tolist()
+
+    for p in proyectos_info:
+        # Asignar entre 5 y 10 empleados aleatorios disponibles
+        participantes = random.sample(nombres_disp, k=random.randint(5,10))
+        guardar_proyecto(
+            p["nombre"], p["descripcion"], p["objetivo"],
+            p["duracion"], p["ubicacion"], p["presupuesto"],
+            p["fecha_inicio"], participantes
+        )
