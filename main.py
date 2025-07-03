@@ -158,6 +158,7 @@ elif seccion == "Gestión de empleados":
             nombre = st.text_input("Nombre completo")
             rut = st.text_input("RUT")
             correo = st.text_input("Correo institucional")
+            estudios = st.text_input("Estudios (Ej.: Ingeniería, Técnico, etc.)")
             cargo = st.text_input("Cargo")
             area = st.text_input("Área funcional")
             años = st.number_input("Años de experiencia", min_value=0, max_value=50)
@@ -172,6 +173,7 @@ elif seccion == "Gestión de empleados":
                     "nombre": nombre,
                     "rut": rut,
                     "correo": correo,
+                    "estudios": estudios,
                     "cargo": cargo,
                     "area": area,
                     "años_experiencia": años,
@@ -200,6 +202,7 @@ elif seccion == "Gestión de empleados":
                 nombre = st.text_input("Nombre completo", value=datos_extraidos.get("nombre",""))
                 rut    = st.text_input("RUT", value=datos_extraidos.get("rut",""))
                 correo = st.text_input("Correo institucional", value=datos_extraidos.get("correo",""))
+                estudios = st.text_input("Estudios", value=datos_extraidos.get("estudios", ""))
                 cargo  = st.text_input("Cargo", value=datos_extraidos.get("cargo",""))
                 area   = st.text_input("Área funcional", value=datos_extraidos.get("area",""))
                 años   = st.number_input("Años de experiencia", min_value=0, max_value=50,
@@ -215,6 +218,7 @@ elif seccion == "Gestión de empleados":
                         "nombre": nombre,
                         "rut": rut,
                         "correo": correo,
+                        "estudios": estudios,
                         "cargo": cargo,
                         "area": area,
                         "años_experiencia": años,
@@ -259,6 +263,7 @@ elif seccion == "Gestión de empleados":
             # Pre-llenar campos con los valores actuales
             nombre = st.text_input("Nombre completo", value=emp["nombre"])
             correo = st.text_input("Correo institucional", value=emp["correo"])
+            estudios = st.text_input("Estudios", value=empleado.get("estudios", ""))
             cargo = st.text_input("Cargo", value=emp["cargo"])
             area = st.text_input("Área funcional", value=emp["area"])
             años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
@@ -272,6 +277,7 @@ elif seccion == "Gestión de empleados":
                 datos_upd = {
                     "nombre": nombre,
                     "correo": correo,
+                    "estudios": estudios,
                     "cargo": cargo,
                     "area": area,
                     "años_experiencia": años,
