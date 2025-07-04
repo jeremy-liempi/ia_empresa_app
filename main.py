@@ -340,6 +340,24 @@ elif seccion == "Gestión de empleados":
             else:
                 st.warning("⚠️ No se encontró un empleado con ese ID o no tiene CV.")
 
+    import logic.bulk_generator as bg
+
+    with st.expander("🛠️ Datos de prueba (bulk)"):
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("▶️ Generar 30 empleados & 3 proyectos"):
+                bg.generar_empleados_aleatorios()
+                bg.generar_proyectos_aleatorios()
+                st.success("Base poblada con datos de prueba.")
+        with col2:
+            if st.button("🗑️ Resetear base de empleados y proyectos"):
+                from logic.supabase_utils import supabase
+                # Borra todos los registros
+                supabase.table("proyectos").delete().neq("id", 0).execute()
+                supabase.table("trabajadores").delete().neq("id", 0).execute()
+                st.warning("Base de datos reseteada.")
+
+        
 
 # === PROYECTOS ===
 elif seccion == "Proyectos":
