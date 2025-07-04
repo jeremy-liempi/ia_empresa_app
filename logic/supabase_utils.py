@@ -75,7 +75,7 @@ def actualizar_trabajador(id_empleado: int, datos: dict):
     except Exception as e:
         st.error(f"Error al actualizar trabajador: {e}")
 
-def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, participantes):
+def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupuesto, fecha_inicio, fecha_fin, participantes):
     try:
         if isinstance(participantes, list):
             participantes = [p.strip() for p in participantes if p.strip()]
@@ -84,10 +84,11 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
             "nombre": nombre,
             "descripcion": descripcion,
             "objetivo": objetivo,
-            "duracion": f"{duracion_semanas} semanas",
+            "duracion": duracion,
             "ubicacion": ubicacion,
             "presupuesto": presupuesto,
             "fecha_inicio": fecha_inicio.isoformat() if hasattr(fecha_inicio, "isoformat") else fecha_inicio,
+            "fecha_fin": fecha_fin.isoformat() if hasattr(fecha_fin, "isoformat") else fecha_fin,
             "participantes": participantes
         }).execute()
 
@@ -100,7 +101,7 @@ def guardar_proyecto(nombre, descripcion, objetivo, duracion, ubicacion, presupu
                     "estado": "En proyecto",
                     "proyecto_actual": nombre,
                     "inicio_proyecto": fecha_inicio.isoformat() if hasattr(fecha_inicio, "isoformat") else fecha_inicio,
-                    "fin_proyecto": None  # Se puede actualizar luego según lógica adicional
+                    "fin_proyecto": fecha_fin.isoformat() if hasattr(fecha_fin, "isoformat") else fecha_fin
                 }).eq("id", id_trabajador).execute()
 
     except Exception as e:
