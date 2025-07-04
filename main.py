@@ -424,15 +424,13 @@ elif seccion == "Proyectos":
             )
            
             if st.form_submit_button("Agregar proyecto"):
-                response = guardar_proyecto(
+                guardar_proyecto(
                     nombre, descripcion, objetivo, f"{duracion_semanas} semanas",
                     ubicacion, presupuesto, fecha_inicio,
                     fecha_fin, participantes
                 )
-                if response.status_code == 201:
-                    st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
-                else:
-                    st.error("Error al guardar el proyecto.")
+                st.success(f"Proyecto '{nombre}' agregado correctamente con {len(participantes)} personas asignadas.")
+            
 
 
     # === EDITAR PROYECTO ===
