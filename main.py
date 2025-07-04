@@ -233,8 +233,16 @@ elif seccion == "Gestión de empleados":
     with st.expander("✏️ Editar informacion de empleado"):
         # Traer datos y seleccionar registro
         df_editar = obtener_trabajadores()
-        id_edit = st.selectbox("Selecciona ID a editar", df_editar["id"], key="edit_id")
-        emp = df_editar[df_editar["id"] == id_edit].iloc[0]
+        id_edit = st.number_input("ID del empleado a editar", min_value=1, step=1)
+
+        filtro = df_editar[df_editar["id"] == id_edit]
+        
+        if filtro.empty:
+            st.warning("⚠️ No se encontró ningún empleado con ese ID. Revisa el ID ingresado.")
+        else:
+            emp = filtro.iloc[0]
+            # Aquí sigues con tu formulario de edición como antes, usando 'emp'
+
 
         estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_nuevo_empleado")
 
