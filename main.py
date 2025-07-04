@@ -230,100 +230,100 @@ elif seccion == "Gestión de empleados":
                     st.success("Empleado agregado con éxito.")
                    
                     
-    with st.expander("✏️ Editar informacion de empleado"):
-        # Traer datos y seleccionar registro
+    with st.expander("✏️ Editar información de empleado"):
         df_editar = obtener_trabajadores()
-        id_edit = st.number_input("ID del empleado a editar", min_value=1, step=1)
-        filtro = df_editar[df_editar["id"] == id_edit]
-        
-        if filtro.empty:
-            st.warning("⚠️ No se encontró ningún empleado con ese ID. Revisa el ID ingresado.")
+        if df_editar.empty:
+            st.info("No hay empleados para editar.")
         else:
-            emp = filtro.iloc[0]
-        
-            # Solo aquí pones el formulario, porque ya sabes que 'emp' existe:
-            with st.form("form_editar"):
-                nombre = st.text_input("Nombre completo", value=emp["nombre"])
-                rut = st.text_input("RUT", value=emp["rut"])
-                correo = st.text_input("Correo", value=emp["correo"])
-                # … los demás campos aquí…
-        
-                submit_editar = st.form_submit_button("Actualizar empleado")
-                if submit_editar:
-                    # Código para actualizar datos
-                    pass
-
-
-        estado_seleccionado = st.selectbox("Estado del Empleado", ["Disponible", "En proyecto", "No disponible"], key="estado_nuevo_empleado")
-
+            # Selección segura de ID
+            id_edit = st.selectbox(
+                "Selecciona el ID del empleado a editar:",
+                df_editar["id"].tolist()
+            )
+            filtro = df_editar[df_editar["id"] == id_edit]
     
-        # Si está en proyecto, pedir estos datos también fuera
-        proyecto_actual = None
-        inicio_proyecto = None
-        fin_proyecto = None
-    
-        if estado_seleccionado == "En proyecto":
-            proyectos = obtener_proyectos()
-            nombres_proyectos = [p["nombre"] for p in proyectos]
-            proyecto_actual = st.selectbox("Proyecto actual", nombres_proyectos)
-            
-            # Obtener fechas del proyecto seleccionado
-            proyecto_info = next((p for p in proyectos if p["nombre"] == proyecto_actual), None)
-            if proyecto_info:
-                inicio_proyecto = proyecto_info.get("fecha_inicio")
-                fin_proyecto = proyecto_info.get("fecha_fin")
+            if filtro.empty:
+                st.warning("⚠️ No se encontró ningún empleado con ese ID. Revisa el ID ingresado.")
             else:
-                inicio_proyecto = None
-                fin_proyecto = None
-
-            
-        with st.form("form_editar"):
-            # Pre-llenar campos con los valores actuales
-            nombre = st.text_input("Nombre completo", value=emp["nombre"])
-            correo = st.text_input("Correo institucional", value=emp["correo"])
-            estudios = st.text_input("Estudios", value=empleado.get("estudios", ""))
-            cargo = st.text_input("Cargo", value=emp["cargo"])
-            area = st.text_input("Área funcional", value=emp["area"])
-            años = st.number_input("Años de experiencia", min_value=0, max_value=50, value=int(emp["años_experiencia"]))
-            horas = st.number_input("Horas disponibles/semana", min_value=0, max_value=168, value=int(emp["horas_por_semana"]))
-            cv_label = "Actualizar CV (reemplaza el anterior)" if emp.get("cv_url") else "Subir CV"
-            cv_nuevo = st.file_uploader(cv_label, type=["pdf"])
-            
-            submit_ed = st.form_submit_button("Guardar cambios")
-            
-            if submit_ed:
-                datos_upd = {
-                    "nombre": nombre,
-                    "correo": correo,
-                    "estudios": estudios,
-                    "cargo": cargo,
-                    "area": area,
-                    "años_experiencia": años,
-                    "horas_por_semana": horas,
-                    "estado": estado_seleccionado,
-                    "proyecto_actual": proyecto_actual if estado_seleccionado == "En proyecto" else None,
-                    "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
-                    "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
-                }
-            
-                # Si subió un nuevo CV, reemplazar el anterior
-                if cv_nuevo:
-                    # Reutilizamos la lógica de subida de nuevo CV
-                    unique_filename = f"{uuid.uuid4()}.pdf"
-                    path_on_bucket = f"cvs/{unique_filename}"
-            
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-                        tmp.write(cv_nuevo.read())
-                        tmp_path = tmp.name
-            
-                    supabase.storage.from_("cvs").upload(path_on_bucket, tmp_path)
-                    public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket)
-                    os.remove(tmp_path)
-            
-                    datos_upd["cv_url"] = public_url
-            
-                actualizar_trabajador(id_edit, datos_upd)
-                st.success("Empleado actualizado correctamente.")
+                emp = filtro.iloc[0]
+    
+                # Formulario de edición
+                with st.form("form_editar"):
+                    nombre = st.text_input("Nombre completo", value=emp.get("nombre", ""))
+                    rut = st.text_input("RUT", value=emp.get("rut", ""))
+                    correo = st.text_input("Correo institucional", value=emp.get("correo", ""))
+                    estudios = st.text_input("Estudios", value=emp.get("estudios", ""))
+                    cargo = st.text_input("Cargo", value=emp.get("cargo", ""))
+                    area = st.text_input("Área funcional", value=emp.get("area", ""))
+                    años = st.number_input(
+                        "Años de experiencia",
+                        min_value=0,
+                        max_value=50,
+                        value=int(emp.get("años_experiencia", 0))
+                    )
+                    horas = st.number_input(
+                        "Horas disponibles/semana",
+                        min_value=0,
+                        max_value=168,
+                        value=int(emp.get("horas_por_semana", 0))
+                    )
+    
+                    # Estado y proyecto
+                    estado_seleccionado = st.selectbox(
+                        "Estado del Empleado",
+                        ["Disponible", "En proyecto", "No disponible"],
+                        index=["Disponible", "En proyecto", "No disponible"].index(emp.get("estado", "Disponible"))
+                    )
+    
+                    proyecto_actual = None
+                    inicio_proyecto = None
+                    fin_proyecto = None
+                    if estado_seleccionado == "En proyecto":
+                        proyectos = obtener_proyectos()
+                        nombres_proyectos = [p["nombre"] for p in proyectos]
+                        default_idx = nombres_proyectos.index(emp.get("proyecto_actual")) if emp.get("proyecto_actual") in nombres_proyectos else 0
+                        proyecto_actual = st.selectbox("Proyecto actual", nombres_proyectos, index=default_idx)
+                        proyecto_info = next((p for p in proyectos if p["nombre"] == proyecto_actual), None)
+                        if proyecto_info:
+                            inicio_proyecto = proyecto_info.get("fecha_inicio")
+                            fin_proyecto = proyecto_info.get("fecha_fin")
+    
+                    # Actualizar CV
+                    cv_label = "Actualizar CV (reemplaza el anterior)" if emp.get("cv_url") else "Subir CV"
+                    cv_nuevo = st.file_uploader(cv_label, type=["pdf"])
+    
+                    submit_ed = st.form_submit_button("Guardar cambios de empleado")
+                    if submit_ed:
+                        datos_upd = {
+                            "nombre": nombre,
+                            "rut": rut,
+                            "correo": correo,
+                            "estudios": estudios,
+                            "cargo": cargo,
+                            "area": area,
+                            "años_experiencia": años,
+                            "horas_por_semana": horas,
+                            "estado": estado_seleccionado,
+                            "proyecto_actual": proyecto_actual if estado_seleccionado == "En proyecto" else None,
+                            "inicio_proyecto": inicio_proyecto.isoformat() if inicio_proyecto else None,
+                            "fin_proyecto": fin_proyecto.isoformat() if fin_proyecto else None,
+                        }
+    
+                        # Si hay un nuevo CV, súbelo y reemplaza la URL
+                        if cv_nuevo:
+                            cv_nuevo.seek(0)
+                            unique_filename = f"{uuid.uuid4()}.pdf"
+                            path_on_bucket = f"cvs/{unique_filename}"
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+                                tmp.write(cv_nuevo.read())
+                                tmp_path = tmp.name
+                            supabase.storage.from_("cvs").upload(path_on_bucket, tmp_path)
+                            public_url = supabase.storage.from_("cvs").get_public_url(path_on_bucket)
+                            datos_upd["cv_url"] = public_url
+                            os.remove(tmp_path)
+    
+                        actualizar_trabajador(id_edit, datos_upd)
+                        st.success("Empleado actualizado correctamente.")
             
         
     with st.expander("🗑️ Eliminar empleado"):
